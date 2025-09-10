@@ -54,6 +54,9 @@
             <button data-view="jobs" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
                 Job Offers
             </button>
+            <button id="gamemaster-btn" class="hidden bg-[#f04747] text-white font-bold py-2 px-6 rounded-md hover:bg-[#c93f3f] transition duration-200">
+                GameMaster Mode
+            </button>
         </div>
     </div>
 
@@ -216,6 +219,10 @@
         let userId;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        
+        // IMPORTANT: In a real app, you would use proper authentication roles
+        // and not a hardcoded ID. This is for demonstration purposes only.
+        const gameMasterId = 'default-app-id-user-1';
 
         // DOM References
         const tabButtons = document.querySelectorAll('.tab-button');
@@ -239,6 +246,7 @@
         const modalOkBtn = document.getElementById('modal-ok-btn');
         const categoryButtons = document.querySelectorAll('.category-btn');
         const itemSearchInput = document.getElementById('item-search');
+        const gamemasterBtn = document.getElementById('gamemaster-btn');
 
         // Game state data
         let playerState = { balance: 0, items: [] };
@@ -732,6 +740,10 @@
             });
         });
 
+        gamemasterBtn.addEventListener('click', () => {
+            window.open('gamemaster.html', '_blank');
+        });
+
         // --- App Initialization ---
 
         window.onload = function() {
@@ -742,6 +754,9 @@
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     userId = user.uid;
+                    if (userId === gameMasterId) {
+                        gamemasterBtn.classList.remove('hidden');
+                    }
                     await initializeFirestore();
                     setupFirestoreListeners();
                     updateUI();
