@@ -41,6 +41,7 @@
 
     <div class="w-full max-w-5xl p-8 space-y-8">
 
+        <!-- Updated Header with Log Off Button -->
         <header class="flex justify-between items-center container-panel p-6 relative">
             <div class="flex-grow flex flex-col items-center">
                 <h1 class="text-4xl font-bold text-[#7289da]">Demand Rusher</h1>
@@ -66,9 +67,11 @@
                 <button id="gamemaster-btn" class="bg-[#f04747] text-white font-bold py-2 px-4 rounded-full hover:bg-[#c93d3d] transition duration-200 hidden">
                     GameMaster Mode
                 </button>
+                <!-- Gearwheel icon button -->
                 <button id="settings-btn" class="text-2xl text-[#dcdcdc] hover:text-[#7289da] transition duration-200">
                     ⚙️
                 </button>
+                <!-- Log Off dropdown menu -->
                 <div id="settings-menu" class="absolute top-12 right-0 bg-[#40444b] rounded-md shadow-lg py-1 hidden z-10">
                     <button id="logoff-btn" class="w-full text-left px-4 py-2 text-sm text-[#dcdcdc] hover:bg-[#52555a] transition duration-200">
                         Log Off
@@ -214,25 +217,16 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // IMPORTANT: Paste your Firebase config here
-        const firebaseConfig = {
-          apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
-          authDomain: "demand-rusher.firebaseapp.com",
-          projectId: "demand-rusher",
-          storageBucket: "demand-rusher.firebasestorage.app",
-          messagingSenderId: "491613307536",
-          appId: "1:4913339b4f12ef7418ce15",
-          measurementId: "G-VY4JSL70QV"
-        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         // IMPORTANT: Paste your actual User ID here for testing purposes.
-        const gameMasterId = 'PASTE_YOUR_USER_ID_HERE';
-
-        const appId = `demandrusher_1.0.0`;
+        const gameMasterId = 'fJ6c2jW6wR9TqZ8sL4pA';
 
         // Global variables for Firebase and app state
         let app;
@@ -280,19 +274,104 @@
         const rankByXpBtn = document.getElementById('rank-by-xp-btn');
         let allPlayersData = [];
 
-        // Firestore Listener for all players (for ranking)
-        onSnapshot(collection(db, `artifacts/${appId}/users`), (snapshot) => {
-            allPlayersData = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data().playerState.data, ...doc.data().playerState.items }));
-            renderRanking('balance'); // Default to ranking by money
-        });
+        // --- Firestore Initialization & Listeners ---
+        async function initializeFirestore() {
+            const playerDocRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
+            const playerDoc = await getDoc(playerDocRef);
+            
+            if (!playerDoc.exists()) {
+                // Initialize new player state
+                await setDoc(playerDocRef, {
+                    balance: 50000,
+                    name: `Player_${userId.slice(0, 4)}`,
+                    experience: 0
+                });
+                playerBalance = 50000;
+                // Add initial inventory
+                const initialInventoryRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/items`);
+                await setDoc(initialInventoryRef, {
+                    'item_wood': 10,
+                    'item_ore': 5,
+                    'item_food': 3
+                });
+                playerInventory = {
+                    'item_wood': 10,
+                    'item_ore': 5,
+                    'item_food': 3
+                };
+            } else {
+                const data = playerDoc.data() || {};
+                playerBalance = data.balance || 0;
+            }
+
+            // Get player's inventory
+            const playerInventoryRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/items`);
+            const inventoryDoc = await getDoc(playerInventoryRef);
+            playerInventory = inventoryDoc.exists() ? inventoryDoc.data() : {};
+
+
+            // Get all items metadata once
+            const itemsCollection = collection(db, `artifacts/${appId}/items`);
+            const itemsSnapshot = await getDocs(itemsCollection);
+            itemsSnapshot.forEach(doc => {
+                itemsMetadata[doc.id] = doc.data();
+            });
+
+            // Populate item dropdown in create offer form
+            populateItemDropdown();
+        }
+
+        function setupFirestoreListeners() {
+            // Listen for changes to the player's document
+            const playerDocRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
+            onSnapshot(playerDocRef, (doc) => {
+                if (doc.exists()) {
+                    const data = doc.data() || {};
+                    playerBalance = data.balance || 0;
+                    updateUI();
+                }
+            });
+
+            const playerInventoryRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/items`);
+            onSnapshot(playerInventoryRef, (doc) => {
+                if (doc.exists()) {
+                    playerInventory = doc.data() || {};
+                    updateUI();
+                }
+            });
+
+            // Listen for changes to market offers
+            const offersCollectionRef = collection(db, `artifacts/${appId}/offers`);
+            onSnapshot(offersCollectionRef, (snapshot) => {
+                sellOffers = [];
+                buyOffers = [];
+                snapshot.forEach(doc => {
+                    const offer = { id: doc.id, ...doc.data() };
+                    if (offer.type === 'sell') {
+                        sellOffers.push(offer);
+                    } else if (offer.type === 'buy') {
+                        buyOffers.push(offer);
+                    }
+                });
+                renderOffers();
+            });
+
+            const usersCollectionRef = collection(db, `artifacts/${appId}/users`);
+            onSnapshot(usersCollectionRef, (snapshot) => {
+                allPlayersData = snapshot.docs.map(doc => {
+                    const data = doc.data().playerState.data;
+                    const items = doc.data().playerState.items;
+                    return { uid: doc.id, ...data, ...items };
+                });
+                renderRanking('balance'); // Default to ranking by money
+            });
+        }
 
         function renderRanking(sortBy) {
             let sortedPlayers = [];
             if (sortBy === 'balance') {
-                sortedPlayers = [...allPlayersData].sort((a, b) => b.balance - a.balance);
+                sortedPlayers = [...allPlayersData].sort((a, b) => (b.balance || 0) - (a.balance || 0));
             } else if (sortBy === 'experience') {
-                // IMPORTANT: The code assumes a 'experience' field exists.
-                // If it doesn't, all players will have 0 XP.
                 sortedPlayers = [...allPlayersData].sort((a, b) => (b.experience || 0) - (a.experience || 0));
             }
 
@@ -305,8 +384,8 @@
                     playerDiv.className = 'bg-[#36393f] p-4 rounded-md shadow-md flex justify-between items-center';
                     playerDiv.innerHTML = `
                         <span class="font-bold text-[#7289da]">#${index + 1}</span>
-                        <span class="font-semibold">${player.uid.slice(0, 8)}...</span>
-                        <span>Money: <span class="text-green-400">$${player.balance.toFixed(2)}</span></span>
+                        <span class="font-semibold">${player.name || player.uid.slice(0, 8) + '...'}</span>
+                        <span>Money: <span class="text-green-400">$${(player.balance || 0).toFixed(2)}</span></span>
                         <span>Experience: ${player.experience || 0} XP</span>
                     `;
                     rankingListEl.appendChild(playerDiv);
@@ -331,86 +410,19 @@
             rankByMoneyBtn.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
         });
 
-        // --- Firestore Initialization & Listeners ---
-        async function initializeFirestore() {
-            const playerDocRef = doc(db, `artifacts/${appId}/users/${userId}`);
-            const playerDoc = await getDoc(playerDocRef);
-            
-            if (!playerDoc.exists()) {
-                // Initialize new player state
-                await setDoc(playerDocRef, {
-                    playerState: {
-                        data: {
-                            balance: 50000,
-                            name: `Player_${userId.slice(0, 4)}`,
-                            experience: 0
-                        },
-                        items: {
-                            'item_wood': 10,
-                            'item_ore': 5,
-                            'item_food': 3
-                        }
-                    }
-                });
-                playerBalance = 50000;
-                playerInventory = {
-                    'item_wood': 10,
-                    'item_ore': 5,
-                    'item_food': 3
-                };
-            } else {
-                const data = playerDoc.data().playerState.data || {};
-                const items = playerDoc.data().playerState.items || {};
-                playerBalance = data.balance || 0;
-                playerInventory = items;
-            }
-
-            // Get all items metadata once
-            const itemsCollection = collection(db, `artifacts/${appId}/items`);
-            const itemsSnapshot = await getDocs(itemsCollection);
-            itemsSnapshot.forEach(doc => {
-                itemsMetadata[doc.id] = doc.data();
-            });
-
-            // Populate item dropdown in create offer form
-            populateItemDropdown();
-        }
-
-        function setupFirestoreListeners() {
-            // Listen for changes to the player's document
-            const playerDocRef = doc(db, `artifacts/${appId}/users/${userId}`);
-            onSnapshot(playerDocRef, (doc) => {
-                if (doc.exists()) {
-                    const data = doc.data().playerState.data || {};
-                    const items = doc.data().playerState.items || {};
-                    playerBalance = data.balance || 0;
-                    playerInventory = items;
-                    updateUI();
-                }
-            });
-
-            // Listen for changes to market offers
-            const offersCollectionRef = collection(db, `artifacts/${appId}/offers`);
-            onSnapshot(offersCollectionRef, (snapshot) => {
-                sellOffers = [];
-                buyOffers = [];
-                snapshot.forEach(doc => {
-                    const offer = { id: doc.id, ...doc.data() };
-                    if (offer.type === 'sell') {
-                        sellOffers.push(offer);
-                    } else if (offer.type === 'buy') {
-                        buyOffers.push(offer);
-                    }
-                });
-                renderOffers();
-            });
-        }
 
         // --- UI Rendering Functions ---
         function updateUI() {
-            userNameSpan.textContent = auth.currentUser.displayName || auth.currentUser.uid.slice(0, 8);
+            // Get the user's name from playerInventory
+            const playerName = playerItems.name;
+            if (playerName) {
+                userNameSpan.textContent = playerName;
+            } else {
+                userNameSpan.textContent = auth.currentUser.displayName || auth.currentUser.uid.slice(0, 8);
+            }
             playerBalanceSpan.textContent = `$${playerBalance.toFixed(2)}`;
             renderInventory();
+            populateItemDropdown();
         }
 
         function showView(viewName) {
@@ -531,39 +543,44 @@
         // --- Transaction and Game Logic ---
         async function buyFromOffer(offerId) {
             const offerRef = doc(db, `artifacts/${appId}/offers/${offerId}`);
-            const buyerRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            const buyerDataRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
+            const buyerItemsRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/items`);
             
             try {
                 await runTransaction(db, async (transaction) => {
                     const offerDoc = await transaction.get(offerRef);
-                    const buyerDoc = await transaction.get(buyerRef);
-                    if (!offerDoc.exists() || !buyerDoc.exists()) {
+                    const buyerDataDoc = await transaction.get(buyerDataRef);
+                    const buyerItemsDoc = await transaction.get(buyerItemsRef);
+
+                    if (!offerDoc.exists() || !buyerDataDoc.exists() || !buyerItemsDoc.exists()) {
                         throw "Document does not exist!";
                     }
 
                     const offer = offerDoc.data();
-                    const buyerState = buyerDoc.data().playerState;
+                    const buyerStateData = buyerDataDoc.data();
+                    const buyerStateItems = buyerItemsDoc.data();
                     const totalCost = offer.quantity * offer.pricePerUnit;
 
-                    if (buyerState.data.balance < totalCost) {
+                    if (buyerStateData.balance < totalCost) {
                         throw "Not enough money to buy this item!";
                     }
 
                     // Update buyer's state
-                    buyerState.data.balance -= totalCost;
-                    const currentItemQuantity = buyerState.items[offer.itemId] || 0;
-                    buyerState.items[offer.itemId] = currentItemQuantity + offer.quantity;
+                    buyerStateData.balance -= totalCost;
+                    const currentItemQuantity = buyerStateItems[offer.itemId] || 0;
+                    buyerStateItems[offer.itemId] = currentItemQuantity + offer.quantity;
                     
-                    transaction.update(buyerRef, { playerState: buyerState });
+                    transaction.update(buyerDataRef, buyerStateData);
+                    transaction.update(buyerItemsRef, buyerStateItems);
 
                     // Update seller's state (if they still exist)
-                    const sellerRef = doc(db, `artifacts/${appId}/users/${offer.sellerId}`);
-                    const sellerDoc = await transaction.get(sellerRef);
-                    if (sellerDoc.exists()) {
-                        const sellerState = sellerDoc.data().playerState;
+                    const sellerDataRef = doc(db, `artifacts/${appId}/users/${offer.sellerId}/playerState/data`);
+                    const sellerDataDoc = await transaction.get(sellerDataRef);
+                    if (sellerDataDoc.exists()) {
+                        const sellerStateData = sellerDataDoc.data();
                         const commission = totalCost * 0.10;
-                        sellerState.data.balance += (totalCost - commission);
-                        transaction.update(sellerRef, { 'playerState.data.balance': sellerState.data.balance });
+                        sellerStateData.balance += (totalCost - commission);
+                        transaction.update(sellerDataRef, sellerStateData);
                     }
 
                     // Delete the offer
@@ -578,38 +595,54 @@
 
         async function sellToOffer(offerId) {
             const offerRef = doc(db, `artifacts/${appId}/offers/${offerId}`);
-            const sellerRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            const sellerDataRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
+            const sellerItemsRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/items`);
             
             try {
                 await runTransaction(db, async (transaction) => {
                     const offerDoc = await transaction.get(offerRef);
-                    const sellerDoc = await transaction.get(sellerRef);
-                    if (!offerDoc.exists() || !sellerDoc.exists()) {
+                    const sellerDataDoc = await transaction.get(sellerDataRef);
+                    const sellerItemsDoc = await transaction.get(sellerItemsRef);
+
+                    if (!offerDoc.exists() || !sellerDataDoc.exists() || !sellerItemsDoc.exists()) {
                         throw "Document does not exist!";
                     }
 
                     const offer = offerDoc.data();
-                    const sellerState = sellerDoc.data().playerState;
+                    const sellerStateData = sellerDataDoc.data();
+                    const sellerStateItems = sellerItemsDoc.data();
                     const totalCost = offer.quantity * offer.pricePerUnit;
-                    const currentItemQuantity = sellerState.items[offer.itemId] || 0;
+                    const currentItemQuantity = sellerStateItems[offer.itemId] || 0;
 
                     if (currentItemQuantity < offer.quantity) {
                         throw "You don't have enough items to sell!";
                     }
 
                     // Update seller's state
-                    sellerState.data.balance += totalCost;
-                    sellerState.items[offer.itemId] -= offer.quantity;
+                    sellerStateData.balance += totalCost;
+                    sellerStateItems[offer.itemId] -= offer.quantity;
+                    if (sellerStateItems[offer.itemId] <= 0) {
+                        delete sellerStateItems[offer.itemId];
+                    }
                     
-                    transaction.update(sellerRef, { playerState: sellerState });
+                    transaction.update(sellerDataRef, sellerStateData);
+                    transaction.update(sellerItemsRef, sellerStateItems);
 
                     // Update buyer's state (if they still exist)
-                    const buyerRef = doc(db, `artifacts/${appId}/users/${offer.buyerId}`);
-                    const buyerDoc = await transaction.get(buyerRef);
-                    if (buyerDoc.exists()) {
-                        const buyerState = buyerDoc.data().playerState;
-                        buyerState.items[offer.itemId] = (buyerState.items[offer.itemId] || 0) + offer.quantity;
-                        transaction.update(buyerRef, { 'playerState.items': buyerState.items });
+                    const buyerDataRef = doc(db, `artifacts/${appId}/users/${offer.buyerId}/playerState/data`);
+                    const buyerItemsRef = doc(db, `artifacts/${appId}/users/${offer.buyerId}/playerState/items`);
+                    const buyerDataDoc = await transaction.get(buyerDataRef);
+                    const buyerItemsDoc = await transaction.get(buyerItemsRef);
+
+                    if (buyerDataDoc.exists() && buyerItemsDoc.exists()) {
+                        const buyerStateData = buyerDataDoc.data();
+                        const buyerStateItems = buyerItemsDoc.data();
+                        const commission = totalCost * 0.10;
+                        buyerStateData.balance -= (totalCost + commission);
+                        buyerStateItems[offer.itemId] = (buyerStateItems[offer.itemId] || 0) + offer.quantity;
+
+                        transaction.update(buyerDataRef, buyerStateData);
+                        transaction.update(buyerItemsRef, buyerStateItems);
                     }
 
                     // Delete the offer
@@ -624,10 +657,37 @@
 
         async function cancelOffer(offerId) {
             const offerRef = doc(db, `artifacts/${appId}/offers/${offerId}`);
+            const sellerDataRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
+            const sellerItemsRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/items`);
+            
             try {
-                await deleteDoc(offerRef);
+                await runTransaction(db, async (transaction) => {
+                    const offerDoc = await transaction.get(offerRef);
+                    const sellerDataDoc = await transaction.get(sellerDataRef);
+                    const sellerItemsDoc = await transaction.get(sellerItemsRef);
+
+                    if (!offerDoc.exists() || !sellerDataDoc.exists() || !sellerItemsDoc.exists()) {
+                        throw "Document does not exist!";
+                    }
+
+                    const offer = offerDoc.data();
+                    const sellerStateData = sellerDataDoc.data();
+                    const sellerStateItems = sellerItemsDoc.data();
+
+                    if (offer.type === 'sell') {
+                        sellerStateItems[offer.itemId] = (sellerStateItems[offer.itemId] || 0) + offer.quantity;
+                        transaction.update(sellerItemsRef, sellerStateItems);
+                    } else if (offer.type === 'buy') {
+                        sellerStateData.balance += (offer.quantity * offer.pricePerUnit);
+                        transaction.update(sellerDataRef, sellerStateData);
+                    }
+
+                    // Delete the offer
+                    transaction.delete(offerRef);
+                });
                 showModal('Success!', 'Offer has been cancelled.');
             } catch (e) {
+                console.error("Transaction failed: ", e);
                 showModal('Error', 'Failed to cancel offer.');
             }
         }
@@ -688,23 +748,33 @@
             };
 
             // Deduct items for sell offer or money for buy offer
-            const playerRef = doc(db, `artifacts/${appId}/users/${userId}`);
-            await runTransaction(db, async (transaction) => {
-                const playerDoc = await transaction.get(playerRef);
-                const playerState = playerDoc.data().playerState;
-                if (offerType === 'sell') {
-                    playerState.items[itemId] -= quantity;
-                    if (playerState.items[itemId] === 0) {
-                        delete playerState.items[itemId];
+            const playerItemsRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/items`);
+            const playerMoneyRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const itemsDoc = await transaction.get(playerItemsRef);
+                    const moneyDoc = await transaction.get(playerMoneyRef);
+                    const currentItems = itemsDoc.data();
+                    const currentMoney = moneyDoc.data();
+
+                    if (offerType === 'sell') {
+                        currentItems[itemId] -= quantity;
+                        if (currentItems[itemId] === 0) {
+                            delete currentItems[itemId];
+                        }
+                        transaction.update(playerItemsRef, currentItems);
+                    } else if (offerType === 'buy') {
+                        currentMoney.balance -= totalValue;
+                        transaction.update(playerMoneyRef, currentMoney);
                     }
-                } else if (offerType === 'buy') {
-                    playerState.data.balance -= totalValue;
-                }
-                transaction.update(playerRef, { playerState: playerState });
-                await addDoc(offersCollectionRef, offer);
-            });
-            showModal('Success', 'Your offer has been created!');
-            createOfferForm.reset();
+                    await addDoc(offersCollectionRef, offer);
+                });
+                showModal('Success', 'Your offer has been created!');
+                createOfferForm.reset();
+            } catch (e) {
+                 showModal('Failed', `Could not create offer: ${e}`);
+            }
         });
 
         priceInput.addEventListener('input', () => {
@@ -743,7 +813,9 @@
 
         // New Event Listeners for settings and log off
         settingsBtn.addEventListener('click', (e) => {
+            // This is the key part: stop the click event from bubbling up to the document listener
             e.stopPropagation();
+            // Toggle the visibility of the settings menu
             settingsMenu.classList.toggle('hidden');
         });
 
@@ -754,6 +826,7 @@
 
         // Close settings menu if user clicks outside
         document.addEventListener('click', (e) => {
+            // Check if the click was outside of both the menu and the button
             if (!settingsMenu.contains(e.target) && !settingsBtn.contains(e.target)) {
                 settingsMenu.classList.add('hidden');
             }
@@ -767,11 +840,12 @@
             
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    if (!user.emailVerified) {
-                        window.location.href = 'login.html';
-                        return;
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
                     }
-
+                    
                     userId = user.uid;
                     if (userId === gameMasterId) {
                         gamemasterBtn.classList.remove('hidden');
