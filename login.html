@@ -141,7 +141,6 @@
             e.preventDefault();
             const email = emailInput.value;
             const password = passwordInput.value;
-            const passwordConfirm = passwordConfirmInput.value;
             
             formError.classList.add('hidden');
 
@@ -153,6 +152,7 @@
                         window.location.href = 'index.html';
                     }, 1500);
                 } else {
+                    const passwordConfirm = passwordConfirmInput.value;
                     if (password !== passwordConfirm) {
                         formError.textContent = 'Passwords do not match.';
                         formError.classList.remove('hidden');
@@ -166,7 +166,6 @@
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     await sendEmailVerification(userCredential.user);
                     showModal('Account Created!', 'A verification email has been sent to your address. Please check your inbox and log in after you verify your email.');
-                    isLogin = true;
                     setTimeout(() => {
                          window.location.href = 'index.html';
                     }, 3000);
