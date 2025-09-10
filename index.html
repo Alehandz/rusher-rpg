@@ -158,11 +158,24 @@
             where, 
             addDoc 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        setLogLevel('warn');
 
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        // --- HARDCODED FIREBASE CONFIGURATION (FOR TESTING) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
+            authDomain: "demand-rusher.firebaseapp.com",
+            projectId: "demand-rusher",
+            storageBucket: "demand-rusher.firebasestorage.app",
+            messagingSenderId: "491613307536",
+            appId: "1:491613307536:web:52f3339b4f12ef7418ce15",
+            measurementId: "G-VY4JSL70QV"
+        };
+        // ----------------------------------------------------
+
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const gameMasterId = "your_game_master_uid_here"; // Replace with the actual Game Master's UID
+        const gameMasterId = ""; // This is currently empty, but you can paste a User ID here to grant Game Master access.
 
         let app;
         let db;
@@ -359,6 +372,16 @@
 
         // --- App Initialization ---
         window.onload = function() {
+            // Check if firebaseConfig is valid
+            if (Object.keys(firebaseConfig).length === 0) {
+                authView.classList.remove('hidden');
+                formTitle.textContent = 'Configuration Error';
+                formError.textContent = 'Firebase configuration is missing. Please contact support.';
+                formError.classList.remove('hidden');
+                authForm.remove(); // Hide the form as it's not usable
+                return;
+            }
+
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
@@ -372,7 +395,6 @@
                         mainView.classList.add('hidden');
                         return;
                     }
-
                     userId = user.uid;
                     if (userId === gameMasterId) {
                         gamemasterBtn.classList.remove('hidden');
