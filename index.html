@@ -161,16 +161,8 @@
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         setLogLevel('warn');
 
-        // --- HARDCODED FIREBASE CONFIGURATION (FOR TESTING) ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
-            authDomain: "demand-rusher.firebaseapp.com",
-            projectId: "demand-rusher",
-            storageBucket: "demand-rusher.firebasestorage.app",
-            messagingSenderId: "491613307536",
-            appId: "1:491613307536:web:52f3339b4f12ef7418ce15",
-            measurementId: "G-VY4JSL70QV"
-        };
+        // --- FIREBASE CONFIGURATION (FROM ENVIRONMENT) ---
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         // ----------------------------------------------------
 
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
