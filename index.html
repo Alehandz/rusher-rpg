@@ -39,145 +39,128 @@
 </head>
 <body class="bg-[#2c2f33] min-h-screen flex flex-col items-center">
 
-    <!-- Top Navigation Bar -->
-    <div class="w-full bg-[#1e2124] flex justify-center py-4 shadow-lg">
-        <div class="flex space-x-4">
-            <button data-view="market" class="tab-button bg-[#7289da] text-white font-bold py-2 px-6 rounded-md hover:bg-[#6273c5] transition duration-200">
-                Market
-            </button>
-            <button data-view="inventory" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
-                Inventory
-            </button>
-            <button data-view="crafting" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
-                Crafting
-            </button>
-            <button data-view="jobs" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
-                Job Offers
-            </button>
-            <button id="gamemaster-btn" class="hidden bg-[#f04747] text-white font-bold py-2 px-6 rounded-md hover:bg-[#c93f3f] transition duration-200">
-                GameMaster Mode
-            </button>
-        </div>
-    </div>
+    <div class="w-full max-w-5xl p-8 space-y-8">
 
-    <!-- Main Content Area -->
-    <div class="flex space-x-6 w-full max-w-5xl p-8">
+        <header class="flex justify-between items-center container-panel p-6">
+            <div class="flex-grow flex flex-col items-center">
+                <h1 class="text-4xl font-bold text-[#7289da]">Demand Rusher</h1>
+                <nav class="flex-grow flex justify-center space-x-4 mt-4">
+                    <button data-view="market" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+                        Market
+                    </button>
+                    <button data-view="inventory" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+                        Inventory
+                    </button>
+                    <button data-view="crafting" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+                        Crafting
+                    </button>
+                    <button data-view="jobs" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+                        Job Offers
+                    </button>
+                    <button data-view="ranking" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+                        Ranking
+                    </button>
+                </nav>
+            </div>
+            <div class="flex-shrink-0">
+                <button id="gamemaster-btn" class="bg-[#f04747] text-white font-bold py-2 px-4 rounded-full hover:bg-[#c93d3d] transition duration-200 hidden">
+                    GameMaster Mode
+                </button>
+            </div>
+        </header>
+        
+        <div class="main-content flex-grow p-4">
 
-        <!-- Left Sidebar: Player Info -->
-        <div class="w-1/4 space-y-4 flex flex-col items-center">
-            <div class="container-panel p-4 w-full">
-                <h2 class="text-xl font-bold mb-2">Your Profile</h2>
-                <div class="flex flex-col space-y-1 text-sm">
-                    <p>User ID: <span id="user-id" class="font-mono text-xs text-gray-400 break-all">Loading...</span></p>
-                    <p>Balance: <span id="player-balance" class="text-green-400 font-semibold">$0.00</span></p>
+            <div class="container-panel p-4 flex flex-col md:flex-row justify-between items-center mb-4">
+                <div class="text-lg font-semibold">
+                    User: <span id="user-id">Loading...</span>
+                </div>
+                <div class="text-lg font-semibold mt-2 md:mt-0">
+                    Balance: <span id="player-balance" class="text-green-400">$0.00</span>
                 </div>
             </div>
 
-            <!-- Items and Search Filter (Visible only on Market and Inventory views) -->
-            <div id="filter-panel" class="container-panel p-4 w-full">
-                <h2 class="text-xl font-bold mb-2">Items</h2>
-                <div class="flex flex-col space-y-2">
-                    <button data-category="All" class="category-btn bg-[#7289da] text-white font-semibold py-2 px-3 rounded-md text-sm hover:bg-[#6273c5] transition duration-200">All</button>
-                    <button data-category="Resources" class="category-btn bg-[#36393f] text-[#dcdcdc] font-semibold py-2 px-3 rounded-md text-sm hover:bg-[#4a4d53] transition duration-200">Resources</button>
-                    <button data-category="Tools" class="category-btn bg-[#36393f] text-[#dcdcdc] font-semibold py-2 px-3 rounded-md text-sm hover:bg-[#4a4d53] transition duration-200">Tools</button>
-                    <button data-category="Food" class="category-btn bg-[#36393f] text-[#dcdcdc] font-semibold py-2 px-3 rounded-md text-sm hover:bg-[#4a4d53] transition duration-200">Food</button>
-                </div>
-                <div class="mt-4">
-                    <input type="text" id="item-search" placeholder="Search..." class="w-full p-2 text-sm bg-[#2f3136] border border-[#52555a] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da] transition duration-200">
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Content Area (View Specific) -->
-        <div class="w-3/4 space-y-6">
-
-            <!-- Market View -->
-            <div id="market-view" class="tab-content active space-y-6">
-                <!-- Sell Offers -->
-                <div class="container-panel p-4">
-                    <h2 class="text-xl font-bold mb-2">Sell Offers</h2>
-                    <div class="offer-row font-semibold text-gray-400 border-b border-[#36393f] pb-2">
-                        <span>Name</span>
-                        <span>Qty</span>
-                        <span>Price/Unit</span>
-                        <span>Total Price</span>
-                        <span>Seller</span>
-                        <span>Action</span>
-                    </div>
-                    <div id="sell-offers-list" class="space-y-1 mt-2">
-                        <!-- Offers will be dynamically added here -->
-                        <p class="text-center text-gray-500">No sell offers found.</p>
-                    </div>
-                </div>
-
-                <!-- Buy Offers -->
-                <div class="container-panel p-4">
-                    <h2 class="text-xl font-bold mb-2">Buy Offers</h2>
-                    <div class="offer-row font-semibold text-gray-400 border-b border-[#36393f] pb-2">
-                        <span>Name</span>
-                        <span>Qty</span>
-                        <span>Price/Unit</span>
-                        <span>Total Price</span>
-                        <span>Buyer</span>
-                        <span>Action</span>
-                    </div>
-                    <div id="buy-offers-list" class="space-y-1 mt-2">
-                        <!-- Offers will be dynamically added here -->
-                        <p class="text-center text-gray-500">No buy offers found.</p>
-                    </div>
-                </div>
-
-                <!-- Create Offer Section -->
-                <div class="container-panel p-6">
-                    <h2 class="text-xl font-bold mb-4">Create Offer</h2>
-                    <div class="flex items-center space-x-4 mb-4">
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="offer-type" value="sell" checked class="form-radio text-[#7289da]">
-                            <span class="ml-2">Sell</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="offer-type" value="buy" class="form-radio text-[#7289da]">
-                            <span class="ml-2">Buy</span>
-                        </label>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
+            <div id="market-view" class="tab-content active">
+                <div class="container-panel p-4 space-y-4">
+                    <h2 class="text-xl font-bold mb-2">Marketplace</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm mb-1">Item</label>
-                            <select id="item-name" class="w-full p-2 text-sm bg-[#2f3136] border border-[#52555a] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]"></select>
+                            <h3 class="text-lg font-semibold mb-2">Sell Offers</h3>
+                            <div class="offer-header-row font-bold text-sm text-gray-400 border-b border-[#36393f] pb-2 grid grid-cols-6 gap-2">
+                                <span>Item</span>
+                                <span>Quantity</span>
+                                <span>Price/Unit</span>
+                                <span>Total Price</span>
+                                <span>Seller</span>
+                                <span>Action</span>
+                            </div>
+                            <div id="sell-offers-list" class="offer-list mt-2 space-y-1">
+                                <p class="text-center text-gray-500">No sell offers available.</p>
+                            </div>
                         </div>
+
                         <div>
-                            <label class="block text-sm mb-1">Quantity</label>
-                            <input type="number" id="item-amount" value="1" min="1" class="w-full p-2 text-sm bg-[#2f3136] border border-[#52555a] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]">
-                        </div>
-                        <div>
-                            <label class="block text-sm mb-1">Price/Unit ($)</label>
-                            <input type="number" id="item-price" value="0.01" min="0.01" step="0.01" class="w-full p-2 text-sm bg-[#2f3136] border border-[#52555a] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]">
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm">Fee: <span id="commission-display">0.00</span></p>
-                            <p class="text-sm font-bold">Total: <span id="total-price-display">0.00</span></p>
+                            <h3 class="text-lg font-semibold mb-2">Buy Offers</h3>
+                            <div class="offer-header-row font-bold text-sm text-gray-400 border-b border-[#36393f] pb-2 grid grid-cols-6 gap-2">
+                                <span>Item</span>
+                                <span>Quantity</span>
+                                <span>Price/Unit</span>
+                                <span>Total Price</span>
+                                <span>Buyer</span>
+                                <span>Action</span>
+                            </div>
+                            <div id="buy-offers-list" class="offer-list mt-2 space-y-1">
+                                <p class="text-center text-gray-500">No buy offers available.</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-4 flex justify-end">
-                        <button id="list-item-btn" class="bg-[#7289da] text-white font-bold py-2 px-6 rounded-md hover:bg-[#6273c5] transition duration-200">
-                            Create Offer
-                        </button>
+                    
+                    <div class="container-panel p-4 mt-8">
+                        <h3 class="text-lg font-semibold mb-4">Create New Offer</h3>
+                        <form id="create-offer-form" class="space-y-4">
+                            <div>
+                                <label for="item-select" class="block text-sm font-medium mb-1">Item to Sell</label>
+                                <select id="item-select" class="w-full p-2 bg-[#2f3136] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]"></select>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="quantity-input" class="block text-sm font-medium mb-1">Quantity</label>
+                                    <input type="number" id="quantity-input" min="1" required class="w-full p-2 bg-[#2f3136] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]">
+                                </div>
+                                <div>
+                                    <label for="price-input" class="block text-sm font-medium mb-1">Price per Unit</label>
+                                    <input type="number" id="price-input" min="1" required class="w-full p-2 bg-[#2f3136] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]">
+                                </div>
+                                <div>
+                                    <label for="offer-type-select" class="block text-sm font-medium mb-1">Offer Type</label>
+                                    <select id="offer-type-select" class="w-full p-2 bg-[#2f3136] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]">
+                                        <option value="sell">Sell</option>
+                                        <option value="buy">Buy</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="text-right text-sm text-gray-400">
+                                <span id="commission-info"></span>
+                            </div>
+                            <div class="text-right text-lg font-bold">
+                                Total: <span id="total-price-info" class="text-green-400">$0.00</span>
+                            </div>
+                            <button type="submit" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5] transition duration-200">Create Offer</button>
+                        </form>
                     </div>
                 </div>
             </div>
 
-            <!-- Inventory View -->
             <div id="inventory-view" class="tab-content">
                 <div class="container-panel p-4">
                     <h2 class="text-xl font-bold mb-2">My Inventory</h2>
                     <div id="inventory-list" class="space-y-2">
-                        <!-- Inventory items will be rendered here -->
                         <p class="text-center text-gray-500">Inventory is empty.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Crafting View -->
             <div id="crafting-view" class="tab-content">
                 <div class="container-panel p-4">
                     <h2 class="text-xl font-bold mb-2">Crafting Station</h2>
@@ -185,7 +168,23 @@
                 </div>
             </div>
 
-            <!-- Job Offers View -->
+            <div id="ranking-view" class="tab-content">
+                <div class="container-panel p-4 space-y-4">
+                    <h2 class="text-xl font-bold mb-2">Player Rankings</h2>
+                    <div class="flex space-x-4">
+                        <button id="rank-by-money-btn" class="bg-[#7289da] text-white font-bold py-2 px-6 rounded-md hover:bg-[#6273c5] transition duration-200">
+                            Rank by Money
+                        </button>
+                        <button id="rank-by-xp-btn" class="bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+                            Rank by Experience
+                        </button>
+                    </div>
+                    <div id="ranking-list" class="space-y-2">
+                        <p class="text-center text-gray-500">Loading rankings...</p>
+                    </div>
+                </div>
+            </div>
+
             <div id="jobs-view" class="tab-content">
                 <div class="container-panel p-4">
                     <h2 class="text-xl font-bold mb-2">Job Board</h2>
@@ -196,7 +195,6 @@
         </div>
     </div>
 
-    <!-- Confirmation and Message Modal -->
     <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center p-4">
         <div class="bg-[#36393f] rounded-lg shadow-xl p-6 w-full max-w-sm">
             <h3 id="modal-title" class="text-lg font-bold mb-2"></h3>
@@ -209,89 +207,195 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase global variables
+        // IMPORTANT: Paste your Firebase config here
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+        // IMPORTANT: Paste your actual User ID here for testing purposes.
+        const gameMasterId = 'PASTE_YOUR_USER_ID_HERE';
+
+        const appId = `demandrusher_1.0.0`;
+
+        // Global variables for Firebase and app state
         let app;
         let db;
         let auth;
         let userId;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        
-        // IMPORTANT: Paste your actual User ID here for testing purposes.
-        // You can find your User ID in the browser's developer console.
-        const gameMasterId = 'PASTE_YOUR_USER_ID_HERE';
 
-        // DOM References
+        // --- DOM References ---
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
-        const filterPanelEl = document.getElementById('filter-panel');
-        const playerBalanceEl = document.getElementById('player-balance');
-        const userIdEl = document.getElementById('user-id');
-        const listItemBtn = document.getElementById('list-item-btn');
-        const itemNameEl = document.getElementById('item-name');
-        const itemAmountEl = document.getElementById('item-amount');
-        const itemPriceEl = document.getElementById('item-price');
-        const offerTypeRadios = document.querySelectorAll('input[name="offer-type"]');
-        const commissionDisplayEl = document.getElementById('commission-display');
-        const totalPriceDisplayEl = document.getElementById('total-price-display');
+        const userIdSpan = document.getElementById('user-id');
+        const playerBalanceSpan = document.getElementById('player-balance');
+        const inventoryList = document.getElementById('inventory-list');
         const sellOffersList = document.getElementById('sell-offers-list');
         const buyOffersList = document.getElementById('buy-offers-list');
-        const inventoryListEl = document.getElementById('inventory-list');
+        const createOfferForm = document.getElementById('create-offer-form');
+        const offerTypeSelect = document.getElementById('offer-type-select');
+        const itemSelect = document.getElementById('item-select');
+        const quantityInput = document.getElementById('quantity-input');
+        const priceInput = document.getElementById('price-input');
+        const totalPriceInfo = document.getElementById('total-price-info');
+        const commissionInfo = document.getElementById('commission-info');
+        const gamemasterBtn = document.getElementById('gamemaster-btn');
         const modal = document.getElementById('modal');
         const modalTitle = document.getElementById('modal-title');
         const modalMessage = document.getElementById('modal-message');
         const modalOkBtn = document.getElementById('modal-ok-btn');
-        const categoryButtons = document.querySelectorAll('.category-btn');
-        const itemSearchInput = document.getElementById('item-search');
-        const gamemasterBtn = document.getElementById('gamemaster-btn');
 
-        // Game state data
-        let playerState = { balance: 0, items: [] };
-        let marketOffers = [];
-        let currentCategory = 'All';
-        let currentSearchQuery = '';
+        // --- Global Data Storage ---
+        let playerInventory = {};
+        let playerBalance = 0;
+        let playerItems = {};
+        let sellOffers = [];
+        let buyOffers = [];
+        let itemsMetadata = {};
 
-        // Initial data for new players
-        const initialPlayerItems = [
-            { name: 'Pine Board', quantity: 5, value: 2.00, category: 'Resources' },
-            { name: 'Iron Ore', quantity: 15, value: 3.50, category: 'Resources' },
-            { name: 'Lettuce', quantity: 20, value: 1.20, category: 'Food' },
-            { name: 'Hammer', quantity: 1, value: 15.00, category: 'Tools' }
-        ];
+        // Ranking global variables and DOM references
+        const rankingListEl = document.getElementById('ranking-list');
+        const rankByMoneyBtn = document.getElementById('rank-by-money-btn');
+        const rankByXpBtn = document.getElementById('rank-by-xp-btn');
+        let allPlayersData = [];
 
-        const initialMarketOffers = [
-            { name: 'Hammer', amount: 1, price: 15.00, seller: 'jN9m2Xq4f', type: 'sell', category: 'Tools' },
-            { name: 'Cedar Board', amount: 5, price: 5.00, seller: 'oP3w5Rz7k', type: 'sell', category: 'Resources' },
-            { name: 'Chicken Egg', amount: 50, price: 0.80, seller: 'xY1b3Cg6d', type: 'sell', category: 'Food' },
-            { name: 'Raw Stone', amount: 100, price: 0.50, seller: 'aQ8p7Lz3m', type: 'sell', category: 'Resources' },
-            { name: 'Crude Oil', amount: 10, price: 25.00, seller: 'eS2h4Uv9x', type: 'sell', category: 'Resources' },
-            { name: 'Nail', amount: 20, price: 0.20, seller: 'rF5j8Kq2w', type: 'sell', category: 'Resources' },
-            { name: 'Pine Board', amount: 10, price: 1.80, seller: 'uG9v1Nl3y', type: 'buy', category: 'Resources' },
-            { name: 'Iron Ore', amount: 5, price: 3.40, seller: 'bZ4c6Dq1s', type: 'buy', category: 'Resources' },
-            { name: 'Lettuce', amount: 10, price: 1.10, seller: 'hJ7o9Pz5l', type: 'buy', category: 'Food' }
-        ];
+        // Firestore Listener for all players (for ranking)
+        onSnapshot(collection(db, `artifacts/${appId}/users`), (snapshot) => {
+            allPlayersData = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data().playerState.data, ...doc.data().playerState.items }));
+            renderRanking('balance'); // Default to ranking by money
+        });
 
-        // --- UI Functions (no database connection) ---
+        function renderRanking(sortBy) {
+            let sortedPlayers = [];
+            if (sortBy === 'balance') {
+                sortedPlayers = [...allPlayersData].sort((a, b) => b.balance - a.balance);
+            } else if (sortBy === 'experience') {
+                // IMPORTANT: The code assumes a 'experience' field exists.
+                // If it doesn't, all players will have 0 XP.
+                sortedPlayers = [...allPlayersData].sort((a, b) => (b.experience || 0) - (a.experience || 0));
+            }
 
+            rankingListEl.innerHTML = '';
+            if (sortedPlayers.length === 0) {
+                rankingListEl.innerHTML = '<p class="text-center text-gray-500">No players found to rank.</p>';
+            } else {
+                sortedPlayers.forEach((player, index) => {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.className = 'bg-[#36393f] p-4 rounded-md shadow-md flex justify-between items-center';
+                    playerDiv.innerHTML = `
+                        <span class="font-bold text-[#7289da]">#${index + 1}</span>
+                        <span class="font-semibold">${player.uid.slice(0, 8)}...</span>
+                        <span>Money: <span class="text-green-400">$${player.balance.toFixed(2)}</span></span>
+                        <span>Experience: ${player.experience || 0} XP</span>
+                    `;
+                    rankingListEl.appendChild(playerDiv);
+                });
+            }
+        }
+
+        // Event listeners for ranking buttons
+        rankByMoneyBtn.addEventListener('click', () => {
+            renderRanking('balance');
+            rankByMoneyBtn.classList.add('bg-[#7289da]', 'text-white');
+            rankByMoneyBtn.classList.remove('bg-[#36393f]', 'text-[#dcdcdc]');
+            rankByXpBtn.classList.remove('bg-[#7289da]', 'text-white');
+            rankByXpBtn.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
+        });
+
+        rankByXpBtn.addEventListener('click', () => {
+            renderRanking('experience');
+            rankByXpBtn.classList.add('bg-[#7289da]', 'text-white');
+            rankByXpBtn.classList.remove('bg-[#36393f]', 'text-[#dcdcdc]');
+            rankByMoneyBtn.classList.remove('bg-[#7289da]', 'text-white');
+            rankByMoneyBtn.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
+        });
+
+        // --- Firestore Initialization & Listeners ---
+        async function initializeFirestore() {
+            const playerDocRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            const playerDoc = await getDoc(playerDocRef);
+            
+            if (!playerDoc.exists()) {
+                // Initialize new player state
+                await setDoc(playerDocRef, {
+                    playerState: {
+                        data: {
+                            balance: 50000,
+                            name: `Player_${userId.slice(0, 4)}`,
+                            experience: 0
+                        },
+                        items: {
+                            'item_wood': 10,
+                            'item_ore': 5,
+                            'item_food': 3
+                        }
+                    }
+                });
+                playerBalance = 50000;
+                playerInventory = {
+                    'item_wood': 10,
+                    'item_ore': 5,
+                    'item_food': 3
+                };
+            } else {
+                const data = playerDoc.data().playerState.data || {};
+                const items = playerDoc.data().playerState.items || {};
+                playerBalance = data.balance || 0;
+                playerInventory = items;
+            }
+
+            // Get all items metadata once
+            const itemsCollection = collection(db, `artifacts/${appId}/items`);
+            const itemsSnapshot = await getDocs(itemsCollection);
+            itemsSnapshot.forEach(doc => {
+                itemsMetadata[doc.id] = doc.data();
+            });
+
+            // Populate item dropdown in create offer form
+            populateItemDropdown();
+        }
+
+        function setupFirestoreListeners() {
+            // Listen for changes to the player's document
+            const playerDocRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            onSnapshot(playerDocRef, (doc) => {
+                if (doc.exists()) {
+                    const data = doc.data().playerState.data || {};
+                    const items = doc.data().playerState.items || {};
+                    playerBalance = data.balance || 0;
+                    playerInventory = items;
+                    updateUI();
+                }
+            });
+
+            // Listen for changes to market offers
+            const offersCollectionRef = collection(db, `artifacts/${appId}/offers`);
+            onSnapshot(offersCollectionRef, (snapshot) => {
+                sellOffers = [];
+                buyOffers = [];
+                snapshot.forEach(doc => {
+                    const offer = { id: doc.id, ...doc.data() };
+                    if (offer.type === 'sell') {
+                        sellOffers.push(offer);
+                    } else if (offer.type === 'buy') {
+                        buyOffers.push(offer);
+                    }
+                });
+                renderOffers();
+            });
+        }
+
+        // --- UI Rendering Functions ---
         function updateUI() {
-            // Updates player balance and user ID in the UI
-            playerBalanceEl.textContent = `$${playerState.balance.toFixed(2)}`;
-            userIdEl.textContent = userId;
-            updateItemDropdown();
-            renderMarketOffers();
+            userIdSpan.textContent = userId.slice(0, 8);
+            playerBalanceSpan.textContent = `$${playerBalance.toFixed(2)}`;
             renderInventory();
-            updateOfferCalculator();
         }
 
         function showView(viewName) {
-            // Hide all views and show the selected one
             tabContents.forEach(view => view.classList.remove('active'));
             document.getElementById(`${viewName}-view`).classList.add('active');
 
-            // Update tab button styles
             tabButtons.forEach(button => {
                 button.classList.remove('bg-[#7289da]', 'text-white');
                 button.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
@@ -300,438 +404,310 @@
                     button.classList.remove('bg-[#36393f]', 'text-[#dcdcdc]');
                 }
             });
-
-            // Show/hide filter panel based on view
-            if (viewName === 'market' || viewName === 'inventory') {
-                filterPanelEl.style.display = 'block';
-            } else {
-                filterPanelEl.style.display = 'none';
-            }
-        }
-
-        function updateItemDropdown() {
-            // Populates the item dropdown with the player's items
-            itemNameEl.innerHTML = '';
-            const availableItems = playerState.items.filter(item => item.quantity > 0);
-            if (availableItems.length === 0) {
-                const option = document.createElement('option');
-                option.textContent = 'No items in your inventory';
-                option.disabled = true;
-                itemNameEl.appendChild(option);
-                listItemBtn.disabled = true;
-            } else {
-                listItemBtn.disabled = false;
-                availableItems.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.name;
-                    option.textContent = `${item.name} (${item.quantity})`;
-                    itemNameEl.appendChild(option);
-                });
-            }
-        }
-
-        function renderMarketOffers() {
-            // Filters offers and renders them in the sell and buy lists
-            sellOffersList.innerHTML = '';
-            buyOffersList.innerHTML = '';
-            
-            const filteredOffers = marketOffers.filter(item => {
-                const matchesCategory = currentCategory === 'All' || item.category === currentCategory;
-                const matchesSearch = item.name.toLowerCase().includes(currentSearchQuery.toLowerCase());
-                return matchesCategory && matchesSearch;
-            });
-
-            const sellOffers = filteredOffers.filter(item => item.type === 'sell');
-            const buyOffers = filteredOffers.filter(item => item.type === 'buy');
-
-            if (sellOffers.length === 0) {
-                sellOffersList.innerHTML = '<p class="text-center text-gray-500">No sell offers found.</p>';
-            } else {
-                renderOffersList(sellOffers, sellOffersList);
-            }
-
-            if (buyOffers.length === 0) {
-                buyOffersList.innerHTML = '<p class="text-center text-gray-500">No buy offers found.</p>';
-            } else {
-                renderOffersList(buyOffers, buyOffersList);
-            }
-
-            attachEventListeners();
         }
 
         function renderInventory() {
-            inventoryListEl.innerHTML = '';
-            const filteredItems = playerState.items.filter(item => {
-                const matchesCategory = currentCategory === 'All' || item.category === currentCategory;
-                const matchesSearch = item.name.toLowerCase().includes(currentSearchQuery.toLowerCase());
-                return matchesCategory && matchesSearch;
-            });
+            inventoryList.innerHTML = '';
+            const items = Object.keys(playerInventory);
+            if (items.length === 0) {
+                inventoryList.innerHTML = '<p class="text-center text-gray-500">Inventory is empty.</p>';
+            } else {
+                items.forEach(itemId => {
+                    const quantity = playerInventory[itemId];
+                    if (quantity > 0) {
+                        const itemMetadata = itemsMetadata[itemId] || { name: 'Unknown Item' };
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'bg-[#36393f] p-4 rounded-md shadow-md flex justify-between items-center';
+                        itemDiv.innerHTML = `
+                            <span class="font-semibold">${itemMetadata.name}</span>
+                            <span>x${quantity}</span>
+                        `;
+                        inventoryList.appendChild(itemDiv);
+                    }
+                });
+            }
+        }
 
-            if (filteredItems.length === 0) {
-                inventoryListEl.innerHTML = '<p class="text-center text-gray-500">Inventory is empty.</p>';
-                return;
+        function renderOffers() {
+            // Render Sell Offers
+            sellOffersList.innerHTML = '';
+            if (sellOffers.length === 0) {
+                sellOffersList.innerHTML = '<p class="text-center text-gray-500">No sell offers available.</p>';
+            } else {
+                sellOffers.forEach(offer => {
+                    const itemMetadata = itemsMetadata[offer.itemId] || { name: 'Unknown Item' };
+                    const offerRow = document.createElement('div');
+                    offerRow.className = 'offer-row hover:bg-[#4a4d53] rounded-md transition duration-200';
+                    const isMyOffer = offer.sellerId === userId;
+                    const actionBtn = isMyOffer
+                        ? `<button class="action-btn bg-red-500 text-white py-1 px-3 rounded-md text-sm hover:bg-red-600" data-offer-id="${offer.id}">Cancel</button>`
+                        : `<button class="action-btn bg-[#7289da] text-white py-1 px-3 rounded-md text-sm hover:bg-[#6273c5]" data-offer-id="${offer.id}">Buy</button>`;
+
+                    offerRow.innerHTML = `
+                        <span>${itemMetadata.name}</span>
+                        <span>x${offer.quantity}</span>
+                        <span>$${offer.pricePerUnit.toFixed(2)}</span>
+                        <span>$${(offer.quantity * offer.pricePerUnit).toFixed(2)}</span>
+                        <span>${isMyOffer ? 'You' : offer.sellerId.slice(0, 8)}...</span>
+                        <span>${actionBtn}</span>
+                    `;
+                    sellOffersList.appendChild(offerRow);
+                });
+                attachOfferListeners();
             }
 
-            filteredItems.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'bg-[#36393f] p-4 rounded-md shadow-md flex justify-between items-center';
-                itemDiv.innerHTML = `
-                    <span class="font-semibold">${item.name}</span>
-                    <span>Quantity: ${item.quantity}</span>
-                    <span>Category: ${item.category}</span>
-                `;
-                inventoryListEl.appendChild(itemDiv);
-            });
+            // Render Buy Offers
+            buyOffersList.innerHTML = '';
+            if (buyOffers.length === 0) {
+                buyOffersList.innerHTML = '<p class="text-center text-gray-500">No buy offers available.</p>';
+            } else {
+                buyOffers.forEach(offer => {
+                    const itemMetadata = itemsMetadata[offer.itemId] || { name: 'Unknown Item' };
+                    const offerRow = document.createElement('div');
+                    offerRow.className = 'offer-row hover:bg-[#4a4d53] rounded-md transition duration-200';
+                    const isMyOffer = offer.buyerId === userId;
+                    const actionBtn = isMyOffer
+                        ? `<button class="action-btn bg-red-500 text-white py-1 px-3 rounded-md text-sm hover:bg-red-600" data-offer-id="${offer.id}">Cancel</button>`
+                        : `<button class="action-btn bg-[#7289da] text-white py-1 px-3 rounded-md text-sm hover:bg-[#6273c5]" data-offer-id="${offer.id}">Sell</button>`;
+
+                    offerRow.innerHTML = `
+                        <span>${itemMetadata.name}</span>
+                        <span>x${offer.quantity}</span>
+                        <span>$${offer.pricePerUnit.toFixed(2)}</span>
+                        <span>$${(offer.quantity * offer.pricePerUnit).toFixed(2)}</span>
+                        <span>${isMyOffer ? 'You' : offer.buyerId.slice(0, 8)}...</span>
+                        <span>${actionBtn}</span>
+                    `;
+                    buyOffersList.appendChild(offerRow);
+                });
+                attachOfferListeners();
+            }
         }
 
-        function renderOffersList(items, container) {
-            // Creates HTML elements for each offer
-            items.forEach(item => {
-                const offerDiv = document.createElement('div');
-                offerDiv.className = 'offer-row hover:bg-[#4a4d53] rounded-md transition duration-200';
-                
-                const actionButton = item.seller === userId ? `
-                    <button data-id="${item.id}" class="cancel-btn bg-red-600 text-white font-bold py-1 px-3 rounded-md text-sm hover:bg-red-700">Cancel</button>
-                ` : `
-                    <button data-id="${item.id}" class="trade-btn bg-[#7289da] text-white font-bold py-1 px-3 rounded-md text-sm hover:bg-[#6273c5]">${item.type === 'sell' ? 'Buy' : 'Sell'}</button>
-                `;
-                
-                offerDiv.innerHTML = `
-                    <span>${item.name}</span>
-                    <span>${item.amount}</span>
-                    <span>$${item.price.toFixed(2)}</span>
-                    <span>$${(item.amount * item.price).toFixed(2)}</span>
-                    <span class="font-mono text-xs text-gray-400 break-all">${item.seller}</span>
-                    ${actionButton}
-                `;
-                container.appendChild(offerDiv);
-            });
-        }
-
-        function attachEventListeners() {
-            // Adds listeners for trade and cancel buttons
-            document.querySelectorAll('.trade-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const id = e.target.dataset.id;
-                    const offer = marketOffers.find(o => o.id === id);
-                    if (offer) {
-                        tradeOffer(id, offer);
-                    }
-                });
-            });
-            
-            document.querySelectorAll('.cancel-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const id = e.target.dataset.id;
-                    const offer = marketOffers.find(o => o.id === id);
-                    if (offer) {
-                        cancelOffer(id, offer);
-                    }
-                });
+        function populateItemDropdown() {
+            itemSelect.innerHTML = '';
+            Object.keys(playerInventory).forEach(itemId => {
+                if (playerInventory[itemId] > 0) {
+                    const itemMetadata = itemsMetadata[itemId] || { name: 'Unknown Item' };
+                    const option = document.createElement('option');
+                    option.value = itemId;
+                    option.textContent = itemMetadata.name;
+                    itemSelect.appendChild(option);
+                }
             });
         }
 
         function showModal(title, message) {
-            // Displays the custom modal
             modalTitle.textContent = title;
             modalMessage.textContent = message;
-            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
         }
 
         function hideModal() {
-            // Hides the modal
-            modal.style.display = 'none';
+            modal.classList.add('hidden');
         }
 
-        function updateOfferCalculator() {
-            // Calculates and displays the fee and total price of the offer
-            const amount = parseFloat(itemAmountEl.value);
-            const price = parseFloat(itemPriceEl.value);
-            const offerType = document.querySelector('input[name="offer-type"]:checked').value;
-
-            if (isNaN(amount) || isNaN(price) || amount <= 0 || price <= 0) {
-                commissionDisplayEl.textContent = '0.00';
-                totalPriceDisplayEl.textContent = '0.00';
-                return;
-            }
-
-            const total = amount * price;
-            if (offerType === 'sell') {
-                const commission = total * 0.10;
-                commissionDisplayEl.textContent = commission.toFixed(2);
-                totalPriceDisplayEl.textContent = (total - commission).toFixed(2);
-            } else { // Buy offer
-                commissionDisplayEl.textContent = '0.00';
-                totalPriceDisplayEl.textContent = total.toFixed(2);
-            }
-        }
-
-        // --- Firestore Functions ---
-
-        async function initializeFirestore() {
-            try {
-                // Checks if the database has initial data
-                const marketOffersRef = collection(db, `artifacts/${appId}/public/data/marketOffers`);
-                const marketDocs = await getDocs(marketOffersRef);
-                if (marketDocs.empty) {
-                    initialMarketOffers.forEach(offer => addDoc(marketOffersRef, offer));
-                }
-
-                // Checks if the user has initial data
-                const userStateRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
-                const userStateDoc = await getDoc(userStateRef);
-                if (!userStateDoc.exists()) {
-                    await setDoc(userStateRef, { balance: 50000.00 });
-                    const playerItemsRef = collection(db, `artifacts/${appId}/users/${userId}/playerItems`);
-                    initialPlayerItems.forEach(item => addDoc(playerItemsRef, item));
-                }
-            } catch (e) {
-                console.error("Error initializing data:", e);
-                showModal('Error', 'Could not load initial game data. Check your internet connection.');
-            }
-        }
-
-        function setupFirestoreListeners() {
-            // Listener for player's balance and items
-            onSnapshot(doc(db, `artifacts/${appId}/users/${userId}/playerState/data`), (doc) => {
-                if (doc.exists()) {
-                    playerState.balance = doc.data().balance;
-                    playerBalanceEl.textContent = `$${playerState.balance.toFixed(2)}`;
-                }
-            });
-
-            onSnapshot(collection(db, `artifacts/${appId}/users/${userId}/playerItems`), (snapshot) => {
-                playerState.items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateItemDropdown();
-                renderInventory();
-            });
-
-            // Listener for all market offers
-            onSnapshot(collection(db, `artifacts/${appId}/public/data/marketOffers`), (snapshot) => {
-                marketOffers = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    isYours: doc.data().seller === userId
-                }));
-                renderMarketOffers();
-            });
-        }
-
-        async function createMarketOffer() {
-            const itemName = itemNameEl.value;
-            const amount = parseFloat(itemAmountEl.value);
-            const price = parseFloat(itemPriceEl.value);
-            const offerType = document.querySelector('input[name="offer-type"]:checked').value;
-
-            if (isNaN(amount) || isNaN(price) || amount <= 0 || price <= 0) {
-                showModal('Error', 'Please enter valid values for quantity and price.');
-                return;
-            }
-
+        // --- Transaction and Game Logic ---
+        async function buyFromOffer(offerId) {
+            const offerRef = doc(db, `artifacts/${appId}/offers/${offerId}`);
+            const buyerRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            
             try {
                 await runTransaction(db, async (transaction) => {
-                    const userStateRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
-                    const userStateDoc = await transaction.get(userStateRef);
-                    if (!userStateDoc.exists()) {
-                        throw new Error("User data not found.");
+                    const offerDoc = await transaction.get(offerRef);
+                    const buyerDoc = await transaction.get(buyerRef);
+                    if (!offerDoc.exists() || !buyerDoc.exists()) {
+                        throw "Document does not exist!";
                     }
-                    const userBalance = userStateDoc.data().balance;
-                    const totalCost = amount * price;
 
-                    if (offerType === 'sell') {
-                        const playerItemDocRef = doc(db, `artifacts/${appId}/users/${userId}/playerItems/${itemName}`);
-                        const playerItemDoc = await transaction.get(playerItemDocRef);
-                        if (!playerItemDoc.exists() || playerItemDoc.data().quantity < amount) {
-                            throw new Error(`You don't have ${amount} of ${itemName} to sell.`);
-                        }
-                        const commission = totalCost * 0.10;
-                        if (userBalance < commission) {
-                            throw new Error(`You don't have enough balance to pay the fee of $${commission.toFixed(2)}.`);
-                        }
-                        transaction.update(userStateRef, { balance: userBalance - commission });
-                        const newQuantity = playerItemDoc.data().quantity - amount;
-                        if (newQuantity <= 0) {
-                            transaction.delete(playerItemDocRef);
-                        } else {
-                            transaction.update(playerItemDocRef, { quantity: newQuantity });
-                        }
+                    const offer = offerDoc.data();
+                    const buyerState = buyerDoc.data().playerState;
+                    const totalCost = offer.quantity * offer.pricePerUnit;
 
-                        const newItemData = {
-                            name: itemName,
-                            amount: amount,
-                            price: price,
-                            seller: userId,
-                            type: 'sell',
-                            category: playerItemDoc.data().category,
-                            timestamp: Date.now()
-                        };
-                        const marketOffersRef = collection(db, `artifacts/${appId}/public/data/marketOffers`);
-                        await addDoc(marketOffersRef, newItemData);
-                        showModal('Offer Created', `Your sell offer for ${amount} ${itemName} has been created.`);
-
-                    } else { // Buy offer
-                        if (userBalance < totalCost) {
-                            throw new Error(`You do not have enough balance for this buy offer of $${totalCost.toFixed(2)}.`);
-                        }
-                        transaction.update(userStateRef, { balance: userBalance - totalCost });
-                        const newItemData = {
-                            name: itemName,
-                            amount: amount,
-                            price: price,
-                            seller: userId,
-                            type: 'buy',
-                            category: playerState.items.find(item => item.name === itemName)?.category || 'Resources',
-                            timestamp: Date.now()
-                        };
-                        const marketOffersRef = collection(db, `artifacts/${appId}/public/data/marketOffers`);
-                        await addDoc(marketOffersRef, newItemData);
-                        showModal('Offer Created', `Your buy offer for ${amount} ${itemName} has been created.`);
+                    if (buyerState.data.balance < totalCost) {
+                        throw "Not enough money to buy this item!";
                     }
-                });
-            } catch (e) {
-                console.error("Transaction error: ", e);
-                showModal('Error', e.message || 'An error occurred while creating the offer.');
-            }
-        }
 
-        async function tradeOffer(offerId, offer) {
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const userStateRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
-                    const userStateDoc = await transaction.get(userStateRef);
-                    if (!userStateDoc.exists()) throw new Error("User data not found.");
-
-                    const userBalance = userStateDoc.data().balance;
-                    const totalCost = offer.amount * offer.price;
-
-                    const sellerStateRef = doc(db, `artifacts/${appId}/users/${offer.seller}/playerState/data`);
-                    const sellerStateDoc = await transaction.get(sellerStateRef);
-                    if (!sellerStateDoc.exists()) throw new Error("Seller data not found.");
-
-                    if (offer.type === 'sell') { // User is buying
-                        if (userBalance < totalCost) {
-                            throw new Error(`You do not have enough balance to buy this item. You need $${totalCost.toFixed(2)}.`);
-                        }
-
-                        const playerItemDocRef = doc(db, `artifacts/${appId}/users/${userId}/playerItems/${offer.name}`);
-                        const playerItemDoc = await transaction.get(playerItemDocRef);
-                        
-                        if (playerItemDoc.exists()) {
-                            transaction.update(playerItemDocRef, { quantity: playerItemDoc.data().quantity + offer.amount });
-                        } else {
-                            transaction.set(playerItemDocRef, { name: offer.name, quantity: offer.amount, value: offer.price, category: offer.category });
-                        }
-                        
-                        // Updates balances
-                        transaction.update(userStateRef, { balance: userBalance - totalCost });
-                        transaction.update(sellerStateRef, { balance: sellerStateDoc.data().balance + totalCost });
-                        
-                        // Deletes market offer
-                        transaction.delete(doc(db, `artifacts/${appId}/public/data/marketOffers`, offerId));
-                        showModal('Purchase Complete', `You bought ${offer.amount} ${offer.name} for $${totalCost.toFixed(2)}.`);
-                    } else { // User is selling to a buy offer
-                        const playerItemDocRef = doc(db, `artifacts/${appId}/users/${userId}/playerItems/${offer.name}`);
-                        const playerItemDoc = await transaction.get(playerItemDocRef);
-                        if (!playerItemDoc.exists() || playerItemDoc.data().quantity < offer.amount) {
-                            throw new Error(`You do not have the quantity of ${offer.amount} of ${offer.name} to sell.`);
-                        }
-                        
-                        const profit = totalCost; // No fee to sell to a buy offer
-                        
-                        // Updates balances and inventories
-                        transaction.update(userStateRef, { balance: userBalance + profit });
-                        const newQuantity = playerItemDoc.data().quantity - offer.amount;
-                        if (newQuantity <= 0) {
-                            transaction.delete(playerItemDocRef);
-                        } else {
-                            transaction.update(playerItemDocRef, { quantity: newQuantity });
-                        }
-                        
-                        // Deletes the offer
-                        transaction.delete(doc(db, `artifacts/${appId}/public/data/marketOffers`, offerId));
-                        showModal('Sale Complete', `You sold ${offer.amount} ${offer.name} and received $${profit.toFixed(2)}.`);
-                    }
-                });
-            } catch (e) {
-                console.error("Transaction error: ", e);
-                showModal('Error', e.message || 'An error occurred while trading the offer.');
-            }
-        }
-
-        async function cancelOffer(offerId, offer) {
-            try {
-                await runTransaction(db, async (transaction) => {
-                    if (offer.seller !== userId) {
-                        throw new Error("You can only cancel your own offers.");
-                    }
+                    // Update buyer's state
+                    buyerState.data.balance -= totalCost;
+                    const currentItemQuantity = buyerState.items[offer.itemId] || 0;
+                    buyerState.items[offer.itemId] = currentItemQuantity + offer.quantity;
                     
-                    if (offer.type === 'sell') {
-                        const userStateRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
-                        const userStateDoc = await transaction.get(userStateRef);
-                        const totalCost = offer.amount * offer.price;
+                    transaction.update(buyerRef, { playerState: buyerState });
+
+                    // Update seller's state (if they still exist)
+                    const sellerRef = doc(db, `artifacts/${appId}/users/${offer.sellerId}`);
+                    const sellerDoc = await transaction.get(sellerRef);
+                    if (sellerDoc.exists()) {
+                        const sellerState = sellerDoc.data().playerState;
                         const commission = totalCost * 0.10;
-                        
-                        const itemDocRef = doc(db, `artifacts/${appId}/users/${userId}/playerItems/${offer.name}`);
-                        const itemDoc = await transaction.get(itemDocRef);
-                        if (itemDoc.exists()) {
-                            transaction.update(itemDocRef, { quantity: itemDoc.data().quantity + offer.amount });
-                        } else {
-                            transaction.set(itemDocRef, { name: offer.name, quantity: offer.amount, value: offer.price, category: offer.category });
-                        }
-                        transaction.delete(doc(db, `artifacts/${appId}/public/data/marketOffers`, offerId));
-                        showModal('Offer Canceled', `Your offer for ${offer.amount} ${offer.name} has been canceled. The item has been returned to your inventory. The $${commission.toFixed(2)} fee is non-refundable.`);
-                    } else { // Buy offer
-                        const userStateRef = doc(db, `artifacts/${appId}/users/${userId}/playerState/data`);
-                        const userStateDoc = await transaction.get(userStateRef);
-                        transaction.update(userStateRef, { balance: userStateDoc.data().balance + (offer.amount * offer.price) });
-                        transaction.delete(doc(db, `artifacts/${appId}/public/data/marketOffers`, offerId));
-                        showModal('Offer Canceled', `Your buy offer for ${offer.amount} ${offer.name} has been canceled. The money has been refunded.`);
+                        sellerState.data.balance += (totalCost - commission);
+                        transaction.update(sellerRef, { 'playerState.data.balance': sellerState.data.balance });
                     }
+
+                    // Delete the offer
+                    transaction.delete(offerRef);
                 });
+                showModal('Success!', 'You have successfully bought the item.');
             } catch (e) {
-                console.error("Transaction error: ", e);
-                showModal('Error', e.message || 'An error occurred while canceling the offer.');
+                console.error("Transaction failed: ", e);
+                showModal('Failed!', `Could not complete transaction: ${e}`);
+            }
+        }
+
+        async function sellToOffer(offerId) {
+            const offerRef = doc(db, `artifacts/${appId}/offers/${offerId}`);
+            const sellerRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const offerDoc = await transaction.get(offerRef);
+                    const sellerDoc = await transaction.get(sellerRef);
+                    if (!offerDoc.exists() || !sellerDoc.exists()) {
+                        throw "Document does not exist!";
+                    }
+
+                    const offer = offerDoc.data();
+                    const sellerState = sellerDoc.data().playerState;
+                    const totalCost = offer.quantity * offer.pricePerUnit;
+                    const currentItemQuantity = sellerState.items[offer.itemId] || 0;
+
+                    if (currentItemQuantity < offer.quantity) {
+                        throw "You don't have enough items to sell!";
+                    }
+
+                    // Update seller's state
+                    sellerState.data.balance += totalCost;
+                    sellerState.items[offer.itemId] -= offer.quantity;
+                    
+                    transaction.update(sellerRef, { playerState: sellerState });
+
+                    // Update buyer's state (if they still exist)
+                    const buyerRef = doc(db, `artifacts/${appId}/users/${offer.buyerId}`);
+                    const buyerDoc = await transaction.get(buyerRef);
+                    if (buyerDoc.exists()) {
+                        const buyerState = buyerDoc.data().playerState;
+                        buyerState.items[offer.itemId] = (buyerState.items[offer.itemId] || 0) + offer.quantity;
+                        transaction.update(buyerRef, { 'playerState.items': buyerState.items });
+                    }
+
+                    // Delete the offer
+                    transaction.delete(offerRef);
+                });
+                showModal('Success!', 'You have successfully sold your item.');
+            } catch (e) {
+                console.error("Transaction failed: ", e);
+                showModal('Failed!', `Could not complete transaction: ${e}`);
+            }
+        }
+
+        async function cancelOffer(offerId) {
+            const offerRef = doc(db, `artifacts/${appId}/offers/${offerId}`);
+            try {
+                await deleteDoc(offerRef);
+                showModal('Success!', 'Offer has been cancelled.');
+            } catch (e) {
+                showModal('Error', 'Failed to cancel offer.');
             }
         }
 
         // --- Event Listeners ---
-
-        listItemBtn.addEventListener('click', createMarketOffer);
         modalOkBtn.addEventListener('click', hideModal);
 
-        offerTypeRadios.forEach(radio => {
-            radio.addEventListener('change', updateOfferCalculator);
-        });
-
-        itemAmountEl.addEventListener('input', updateOfferCalculator);
-        itemPriceEl.addEventListener('input', updateOfferCalculator);
-
-        categoryButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                categoryButtons.forEach(btn => {
-                    btn.classList.remove('bg-[#7289da]');
-                    btn.classList.add('bg-[#36393f]');
-                });
-                e.target.classList.remove('bg-[#36393f]');
-                e.target.classList.add('bg-[#7289da]');
-                currentCategory = e.target.dataset.category;
-                const activeView = document.querySelector('.tab-content.active').id;
-                if (activeView === 'market-view') {
-                    renderMarketOffers();
-                } else if (activeView === 'inventory-view') {
-                    renderInventory();
-                }
+        function attachOfferListeners() {
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.onclick = (event) => {
+                    const offerId = event.target.dataset.offerId;
+                    const offer = sellOffers.find(o => o.id === offerId) || buyOffers.find(o => o.id === offerId);
+                    if (!offer) return;
+                    
+                    if (offer.type === 'sell' && offer.sellerId !== userId) {
+                        buyFromOffer(offerId);
+                    } else if (offer.type === 'buy' && offer.buyerId !== userId) {
+                        sellToOffer(offerId);
+                    } else if (offer.sellerId === userId || offer.buyerId === userId) {
+                        cancelOffer(offerId);
+                    }
+                };
             });
+        }
+
+        createOfferForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const itemId = itemSelect.value;
+            const quantity = parseInt(quantityInput.value);
+            const pricePerUnit = parseFloat(priceInput.value);
+            const offerType = offerTypeSelect.value;
+
+            if (isNaN(quantity) || isNaN(pricePerUnit) || quantity <= 0 || pricePerUnit <= 0) {
+                showModal('Invalid Input', 'Please enter valid positive numbers for quantity and price.');
+                return;
+            }
+
+            if (playerInventory[itemId] < quantity && offerType === 'sell') {
+                showModal('Invalid Quantity', 'You do not have enough of this item to sell.');
+                return;
+            }
+
+            const totalValue = quantity * pricePerUnit;
+            if (playerBalance < totalValue && offerType === 'buy') {
+                showModal('Not Enough Money', 'You do not have enough money to place this buy offer.');
+                return;
+            }
+
+            const offersCollectionRef = collection(db, `artifacts/${appId}/offers`);
+            const offer = {
+                itemId: itemId,
+                quantity: quantity,
+                pricePerUnit: pricePerUnit,
+                type: offerType,
+                timestamp: Date.now(),
+                sellerId: offerType === 'sell' ? userId : null,
+                buyerId: offerType === 'buy' ? userId : null
+            };
+
+            // Deduct items for sell offer or money for buy offer
+            const playerRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            await runTransaction(db, async (transaction) => {
+                const playerDoc = await transaction.get(playerRef);
+                const playerState = playerDoc.data().playerState;
+                if (offerType === 'sell') {
+                    playerState.items[itemId] -= quantity;
+                    if (playerState.items[itemId] === 0) {
+                        delete playerState.items[itemId];
+                    }
+                } else if (offerType === 'buy') {
+                    playerState.data.balance -= totalValue;
+                }
+                transaction.update(playerRef, { playerState: playerState });
+                await addDoc(offersCollectionRef, offer);
+            });
+            showModal('Success', 'Your offer has been created!');
+            createOfferForm.reset();
         });
 
-        itemSearchInput.addEventListener('input', (e) => {
-            currentSearchQuery = e.target.value;
-            const activeView = document.querySelector('.tab-content.active').id;
-            if (activeView === 'market-view') {
-                renderMarketOffers();
-            } else if (activeView === 'inventory-view') {
-                renderInventory();
+        priceInput.addEventListener('input', () => {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const type = offerTypeSelect.value;
+            const total = quantity * price;
+
+            if (type === 'sell') {
+                const commission = total * 0.1;
+                commissionInfo.textContent = `Commission (10%): $${commission.toFixed(2)}`;
+                totalPriceInfo.textContent = `$${(total - commission).toFixed(2)}`;
+            } else {
+                commissionInfo.textContent = '';
+                totalPriceInfo.textContent = `$${total.toFixed(2)}`;
             }
+        });
+
+        quantityInput.addEventListener('input', () => {
+            priceInput.dispatchEvent(new Event('input'));
+        });
+
+        offerTypeSelect.addEventListener('change', () => {
+            priceInput.dispatchEvent(new Event('input'));
         });
 
         tabButtons.forEach(button => {
@@ -746,7 +722,7 @@
 
         // --- App Initialization ---
 
-       window.onload = function() {
+        window.onload = function() {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
