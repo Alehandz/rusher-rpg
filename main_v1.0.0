@@ -220,9 +220,9 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         
-        // IMPORTANT: In a real app, you would use proper authentication roles
-        // and not a hardcoded ID. This is for demonstration purposes only.
-        const gameMasterId = 'default-app-id-user-1';
+        // IMPORTANT: Paste your actual User ID here for testing purposes.
+        // You can find your User ID in the browser's developer console.
+        const gameMasterId = 'PASTE_YOUR_USER_ID_HERE';
 
         // DOM References
         const tabButtons = document.querySelectorAll('.tab-button');
@@ -754,6 +754,8 @@
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     userId = user.uid;
+                    // Log the user ID to the console for testing
+                    console.log(`Your User ID is: ${userId}`);
                     if (userId === gameMasterId) {
                         gamemasterBtn.classList.remove('hidden');
                     }
