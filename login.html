@@ -64,11 +64,18 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         
-        // IMPORTANT: Paste your Firebase config here
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const firebaseConfig = {
+          apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
+          authDomain: "demand-rusher.firebaseapp.com",
+          projectId: "demand-rusher",
+          storageBucket: "demand-rusher.firebasestorage.app",
+          messagingSenderId: "491613307536",
+          appId: "1:4913339b4f12ef7418ce15",
+          measurementId: "G-VY4JSL70QV"
+        };
 
         // DOM References
         const formTitle = document.getElementById('form-title');
