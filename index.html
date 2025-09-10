@@ -736,6 +736,7 @@
                 return;
             }
 
+            // Correction: Pass `db` to `collection`
             const offersCollectionRef = collection(db, `artifacts/${appId}/offers`);
             const offer = {
                 itemId: itemId,
@@ -768,6 +769,7 @@
                         currentMoney.balance -= totalValue;
                         transaction.update(playerMoneyRef, currentMoney);
                     }
+                    // Correction: Pass `db` to `addDoc`
                     await addDoc(offersCollectionRef, offer);
                 });
                 showModal('Success', 'Your offer has been created!');
