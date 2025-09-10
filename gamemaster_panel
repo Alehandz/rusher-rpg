@@ -171,15 +171,21 @@
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
+            
+            // IMPORTANT: Paste your actual User ID here for testing purposes.
+            const gameMasterId = 'PASTE_YOUR_USER_ID_HERE';
 
-            // In a real application, you would add logic to verify the user's
-            // GM status here before showing this page.
-            if (typeof __initial_auth_token !== 'undefined') {
-                signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                signInAnonymously(auth);
-            }
-            showGMView('manage-items');
+            onAuthStateChanged(auth, async (user) => {
+                if (user && user.uid === gameMasterId) {
+                    // Only a GameMaster can see this page
+                    console.log('GameMaster Logged in. Welcome.');
+                    setupFirestoreListeners();
+                    showGMView('manage-items'); // Show the default view
+                } else {
+                    // If not a GameMaster, redirect to the main page
+                    window.location.href = 'index.html';
+                }
+            });
         };
     </script>
 </body>
