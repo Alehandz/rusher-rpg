@@ -746,13 +746,19 @@
 
         // --- App Initialization ---
 
-        window.onload = function() {
+       window.onload = function() {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
             
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
+                    if (!user.emailVerified) {
+                        // Redirect to login if email is not verified
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
                     userId = user.uid;
                     // Log the user ID to the console for testing
                     console.log(`Your User ID is: ${userId}`);
@@ -764,12 +770,8 @@
                     updateUI();
                     showView('market'); // Set the initial view to market
                 } else {
-                    // If the user is not logged in, perform anonymous login
-                    if (typeof __initial_auth_token !== 'undefined') {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
+                    // Redirect to login if no user is signed in
+                    window.location.href = 'login.html';
                 }
             });
         };
