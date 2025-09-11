@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demand Rusher - Player</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #1f2024;
+      color: #dcdcdc;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+  <div class="w-full max-w-6xl p-8 space-y-6">
+    <header class="flex justify-between items-center bg-[#2c2f33] p-4 rounded-lg shadow">
+      <h1 class="text-3xl font-bold text-[#7289da]">Demand Rusher</h1>
+      <button id="logoutBtn" class="bg-[#ff5555] text-white px-4 py-2 rounded hover:bg-[#ff4444]">Logout</button>
+    </header>
+
+    <main class="space-y-6">
+      <h2 class="text-2xl font-semibold">Player Dashboard</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <a href="inventory.html" class="block bg-[#7289da] text-white font-bold py-4 px-6 rounded-md text-center hover:bg-[#6273c5] transition">Inventory</a>
+        <a href="market.html" class="block bg-[#43b581] text-white font-bold py-4 px-6 rounded-md text-center hover:bg-[#3aa96b] transition">Market</a>
+        <a href="game.html" class="block bg-[#faa61a] text-white font-bold py-4 px-6 rounded-md text-center hover:bg-[#e69515] transition">Start Game</a>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="./player.js"></script>
+</body>
+</html>
