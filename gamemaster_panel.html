@@ -55,12 +55,25 @@
                 <h2 class="text-xl font-bold mb-4">Manage Items and Item Groups</h2>
                 
                 <div class="grid md:grid-cols-2 gap-6">
-                    <!-- Add/Remove Item Form -->
+                    <!-- Add New Item Form -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold">Add New Item</h3>
                         <input type="text" placeholder="Item Name" id="new-item-name" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                        <input type="text" placeholder="Category (e.g., Resources, Tools)" id="new-item-category" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                        <input type="number" placeholder="Default Value ($)" step="0.01" id="new-item-value" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                        <input type="text" placeholder="Category (Group>Subgroup)" id="new-item-category" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+
+                        <!-- Recipe -->
+                        <div id="recipe-container" class="space-y-2">
+                            <label class="font-semibold">Recipe</label>
+                            <div class="recipe-row flex space-x-2">
+                                <input type="text" placeholder="Parent Item ID" class="recipe-item p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
+                                <input type="number" placeholder="Quantity" min="1" class="recipe-quantity p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-24">
+                                <button type="button" class="add-recipe-btn bg-[#7289da] text-white px-2 rounded-md">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Production time -->
+                        <input type="number" placeholder="Production Time (seconds)" id="new-item-production-time" min="1" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+
                         <button id="add-item-btn" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5]">
                             Add Item
                         </button>
@@ -130,15 +143,15 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase global variables
         let app;
         let db;
         let auth;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? '{}');
 
         // DOM References
         const gmTabButtons = document.querySelectorAll('.gm-tab-button');
@@ -158,7 +171,7 @@
                 }
             });
         }
-        
+
         // --- Event Listeners ---
         gmTabButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -172,21 +185,80 @@
             db = getFirestore(app);
             auth = getAuth(app);
             
-            // IMPORTANT: Paste your actual User ID here for testing purposes.
             const gameMasterId = 'AN2gz1aJecYOdoy6qiYiAST94JP2';
-
             onAuthStateChanged(auth, async (user) => {
                 if (user && user.uid === gameMasterId) {
-                    // Only a GameMaster can see this page
                     console.log('GameMaster Logged in. Welcome.');
-                    setupFirestoreListeners();
-                    showGMView('manage-items'); // Show the default view
+                    showGMView('manage-items');
                 } else {
-                    // If not a GameMaster, redirect to the main page
                     window.location.href = 'index.html';
                 }
             });
         };
+
+        // --- Recipe dynamic rows ---
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('add-recipe-btn')) {
+                const container = e.target.closest('#recipe-container');
+                const newRow = e.target.closest('.recipe-row').cloneNode(true);
+                newRow.querySelectorAll('input').forEach(input => input.value = '');
+                container.appendChild(newRow);
+            }
+        });
+
+        // --- Generate item ID ---
+        function generateItemId(name) {
+            return 'item_' + name.toLowerCase().replace(/\s+/g, '_');
+        }
+
+        // --- Add New Item ---
+        document.getElementById('add-item-btn').addEventListener('click', async () => {
+            const name = document.getElementById('new-item-name').value.trim();
+            const category = document.getElementById('new-item-category').value.trim();
+            const productionTime = parseInt(document.getElementById('new-item-production-time').value);
+
+            if (!name || !category || isNaN(productionTime)) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const recipeRows = document.querySelectorAll('.recipe-row');
+            const recipe = [];
+            recipeRows.forEach(row => {
+                const parentItemId = row.querySelector('.recipe-item').value.trim();
+                const quantity = parseInt(row.querySelector('.recipe-quantity').value);
+                if (parentItemId && quantity > 0) recipe.push({ parentItemId, quantity });
+            });
+
+            if (recipe.length === 0) {
+                alert('Recipe must have at least one parent item.');
+                return;
+            }
+
+            const itemId = generateItemId(name);
+
+            try {
+                await setDoc(doc(db, `artifacts/${appId}/items`, itemId), {
+                    id: itemId,
+                    name,
+                    category,
+                    recipe,
+                    productionTime
+                });
+                alert('Item created successfully!');
+                // Clear form
+                document.getElementById('new-item-name').value = '';
+                document.getElementById('new-item-category').value = '';
+                document.getElementById('new-item-production-time').value = '';
+                document.querySelectorAll('.recipe-row').forEach((row, i) => {
+                    if (i === 0) row.querySelectorAll('input').forEach(input => input.value = '');
+                    else row.remove();
+                });
+            } catch (err) {
+                console.error(err);
+                alert('Failed to create item.');
+            }
+        });
     </script>
 </body>
 </html>
