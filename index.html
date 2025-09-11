@@ -73,7 +73,7 @@ GameMaster Mode
 
 <div class="container-panel p-4 flex flex-col md:flex-row justify-between items-center mb-4">
 <div class="text-lg font-semibold">
-                    User: <span id="user-name">Loading...</span>
+User: <span id="user-name">Loading...</span>
 </div>
 <div class="text-lg font-semibold mt-2 md:mt-0">
 Balance: <span id="player-balance" class="text-green-400">$0.00</span>
@@ -206,14 +206,13 @@ Rank by Experience
 </div>
 
 <script type="module">
-        // Import the functions you need from the SDKs you need
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
-        // Your web app's Firebase configuration
-        // IMPORTANT: Paste your Firebase config here
+// Your web app's Firebase configuration
 const firebaseConfig = {
 apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
 authDomain: "demand-rusher.firebaseapp.com",
@@ -224,13 +223,13 @@ appId: "1:4913339b4f12ef7418ce15",
 measurementId: "G-VY4JSL70QV"
 };
 
-        // Initialize Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
-        // IMPORTANT: Paste your actual User ID here for testing purposes.
+// IMPORTANT: Paste your actual User ID here for testing purposes.
 const gameMasterId = 'PASTE_YOUR_USER_ID_HERE';
 
 const appId = `demandrusher_1.0.0`;
@@ -297,11 +296,11 @@ sortedPlayers.forEach((player, index) => {
 const playerDiv = document.createElement('div');
 playerDiv.className = 'bg-[#36393f] p-4 rounded-md shadow-md flex justify-between items-center';
 playerDiv.innerHTML = `
-                       <span class="font-bold text-[#7289da]">#${index + 1}</span>
-                       <span class="font-semibold">${player.uid.slice(0, 8)}...</span>
-                       <span>Money: <span class="text-green-400">$${player.balance.toFixed(2)}</span></span>
-                       <span>Experience: ${player.experience || 0} XP</span>
-                   `;
+<span class="font-bold text-[#7289da]">#${index + 1}</span>
+<span class="font-semibold">${player.uid.slice(0, 8)}...</span>
+<span>Money: <span class="text-green-400">$${player.balance.toFixed(2)}</span></span>
+<span>Experience: ${player.experience || 0} XP</span>
+`;
 rankingListEl.appendChild(playerDiv);
 });
 }
@@ -401,7 +400,7 @@ renderOffers();
 
 // --- UI Rendering Functions ---
 function updateUI() {
-            userNameSpan.textContent = auth.currentUser.displayName || `Player_${auth.currentUser.uid.slice(0, 4)}`;
+userNameSpan.textContent = auth.currentUser.displayName || `Player_${auth.currentUser.uid.slice(0, 4)}`;
 playerBalanceSpan.textContent = `$${playerBalance.toFixed(2)}`;
 renderInventory();
 }
@@ -433,9 +432,9 @@ const itemMetadata = itemsMetadata[itemId] || { name: 'Unknown Item' };
 const itemDiv = document.createElement('div');
 itemDiv.className = 'bg-[#36393f] p-4 rounded-md shadow-md flex justify-between items-center';
 itemDiv.innerHTML = `
-                           <span class="font-semibold">${itemMetadata.name}</span>
-                           <span>x${quantity}</span>
-                       `;
+<span class="font-semibold">${itemMetadata.name}</span>
+<span>x${quantity}</span>
+`;
 inventoryList.appendChild(itemDiv);
 }
 });
@@ -458,13 +457,13 @@ const actionBtn = isMyOffer
 : `<button class="action-btn bg-[#7289da] text-white py-1 px-3 rounded-md text-sm hover:bg-[#6273c5]" data-offer-id="${offer.id}">Buy</button>`;
 
 offerRow.innerHTML = `
-                       <span>${itemMetadata.name}</span>
-                       <span>x${offer.quantity}</span>
-                       <span>$${offer.pricePerUnit.toFixed(2)}</span>
-                       <span>$${(offer.quantity * offer.pricePerUnit).toFixed(2)}</span>
-                       <span>${isMyOffer ? 'You' : offer.sellerId.slice(0, 8)}...</span>
-                       <span>${actionBtn}</span>
-                   `;
+<span>${itemMetadata.name}</span>
+<span>x${offer.quantity}</span>
+<span>$${offer.pricePerUnit.toFixed(2)}</span>
+<span>$${(offer.quantity * offer.pricePerUnit).toFixed(2)}</span>
+<span>${isMyOffer ? 'You' : offer.sellerId.slice(0, 8)}...</span>
+<span>${actionBtn}</span>
+`;
 sellOffersList.appendChild(offerRow);
 });
 attachOfferListeners();
@@ -485,13 +484,13 @@ const actionBtn = isMyOffer
 : `<button class="action-btn bg-[#7289da] text-white py-1 px-3 rounded-md text-sm hover:bg-[#6273c5]" data-offer-id="${offer.id}">Sell</button>`;
 
 offerRow.innerHTML = `
-                       <span>${itemMetadata.name}</span>
-                       <span>x${offer.quantity}</span>
-                       <span>$${offer.pricePerUnit.toFixed(2)}</span>
-                       <span>$${(offer.quantity * offer.pricePerUnit).toFixed(2)}</span>
-                       <span>${isMyOffer ? 'You' : offer.buyerId.slice(0, 8)}...</span>
-                       <span>${actionBtn}</span>
-                   `;
+<span>${itemMetadata.name}</span>
+<span>x${offer.quantity}</span>
+<span>$${offer.pricePerUnit.toFixed(2)}</span>
+<span>$${(offer.quantity * offer.pricePerUnit).toFixed(2)}</span>
+<span>${isMyOffer ? 'You' : offer.buyerId.slice(0, 8)}...</span>
+<span>${actionBtn}</span>
+`;
 buyOffersList.appendChild(offerRow);
 });
 attachOfferListeners();
