@@ -10,93 +10,167 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #2c2f33;
-  color: #dcdcdc;
+    font-family: 'Inter', sans-serif;
+    background-color: #2c2f33;
+    color: #dcdcdc;
 }
 .container-panel {
-  background-color: #40444b;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    background-color: #40444b;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 16px;
 }
-.menu-btn {
-  margin: 4px;
+.menu-button {
+    background-color: #36393f;
+    color: #dcdcdc;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: 0.2s;
 }
-#item-list .item-row:hover {
-  background-color: #4a4d53;
+.menu-button:hover {
+    background-color: #4a4d53;
+}
+.input-field, select {
+    width: 100%;
+    padding: 6px 8px;
+    background-color: #2f3136;
+    border-radius: 6px;
+    color: #dcdcdc;
+    border: none;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #36393f;
+}
+.item-row:last-child {
+    border-bottom: none;
+}
+.button-small {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
 }
 </style>
 </head>
-<body class="bg-[#2c2f33] min-h-screen flex flex-col items-center">
+<body class="min-h-screen flex flex-col items-center">
 
-<div class="w-full max-w-6xl p-8 space-y-8">
+<div class="w-full max-w-5xl p-8 space-y-6">
 
-<header class="container-panel p-6 flex justify-between items-center">
-  <h1 class="text-3xl font-bold text-[#7289da]">GameMaster Panel</h1>
-  <div id="gm-menu" class="space-x-2">
-    <button class="menu-btn bg-[#7289da] text-white font-bold py-2 px-4 rounded-md" data-section="items">Item Manager</button>
-    <button class="menu-btn bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-4 rounded-md" data-section="characters">Character Manager</button>
-    <button class="menu-btn bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-4 rounded-md" data-section="market">Market Manager</button>
-    <button class="menu-btn bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-4 rounded-md" data-section="jobs">Jobs Manager</button>
-    <button class="menu-btn bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-4 rounded-md" data-section="resources">Resources Manager</button>
-  </div>
+<header class="flex justify-between items-center mb-6">
+<h1 class="text-4xl font-bold text-[#7289da]">GameMaster Panel</h1>
+<div>
+<span id="gm-name">GM</span>
+</div>
 </header>
 
-<div class="main-content w-full space-y-6">
-
-<!-- Item Manager Section -->
-<div id="items-section" class="tab-section container-panel p-4">
-  <h2 class="text-xl font-bold mb-4">Items</h2>
-
-  <div class="flex space-x-2 mb-4">
-    <input type="text" id="search-input" placeholder="Search items..." class="flex-grow p-2 bg-[#2f3136] rounded-md">
-    <select id="category-filter" class="p-2 bg-[#2f3136] rounded-md">
-      <option value="all">All Categories</option>
-      <option value="material">Material</option>
-      <option value="consumable">Consumable</option>
-    </select>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-    <div>
-      <input type="text" id="item-name" placeholder="Item Name" class="w-full p-2 bg-[#2f3136] rounded-md">
-    </div>
-    <div>
-      <select id="item-parent" class="w-full p-2 bg-[#2f3136] rounded-md">
-        <option value="">No Parent</option>
-      </select>
-    </div>
-    <div>
-      <select id="item-category" class="w-full p-2 bg-[#2f3136] rounded-md">
-        <option value="material">Material</option>
-        <option value="consumable">Consumable</option>
-      </select>
-    </div>
-  </div>
-
-  <button id="add-item-btn" class="bg-[#7289da] text-white font-bold py-2 px-4 rounded-md">Add Item</button>
-
-  <div id="item-list" class="mt-4 space-y-2 max-h-80 overflow-y-auto">
-    <!-- Items will be dynamically listed here -->
-  </div>
+<!-- Main Menu -->
+<div class="flex flex-wrap gap-4 mb-6">
+<button class="menu-button" data-view="item-manager">Item Manager</button>
+<button class="menu-button" data-view="character-manager">Character Manager</button>
+<button class="menu-button" data-view="market-manager">Market Manager</button>
+<button class="menu-button" data-view="jobs-manager">Jobs Manager</button>
+<button class="menu-button" data-view="resources-manager">Resources Manager</button>
 </div>
 
-<!-- Market Manager Section -->
-<div id="market-section" class="tab-section container-panel p-4 hidden">
-  <h2 class="text-xl font-bold mb-4">Market Manager</h2>
-  <button id="create-premade-btn" class="bg-green-500 text-white font-bold py-2 px-4 rounded-md">Create Premade Offers ($1, unlimited)</button>
+<!-- Views -->
+<div id="item-manager" class="container-panel tab-content">
+<h2 class="text-xl font-bold mb-4">Item Manager</h2>
+
+<div class="mb-4">
+<h3 class="font-semibold mb-2">Create New Item</h3>
+<form id="create-item-form" class="space-y-3">
+<div>
+<label class="block mb-1">Item Name</label>
+<input type="text" id="item-name" class="input-field" required>
 </div>
 
-<!-- Placeholder sections -->
-<div id="characters-section" class="tab-section container-panel p-4 hidden"><h2>Character Manager (Coming Soon)</h2></div>
-<div id="jobs-section" class="tab-section container-panel p-4 hidden"><h2>Jobs Manager (Coming Soon)</h2></div>
-<div id="resources-section" class="tab-section container-panel p-4 hidden"><h2>Resources Manager (Coming Soon)</h2></div>
+<div>
+<label class="block mb-1">Group Name</label>
+<input type="text" id="item-group" class="input-field" placeholder="Tools, Resources, Weapons..." required>
+</div>
 
+<div>
+<label class="block mb-1">Build Time (seconds)</label>
+<input type="number" id="item-buildtime" class="input-field" min="1" value="60">
+</div>
+
+<div id="parents-container">
+<label class="block mb-1">Parents (optional)</label>
+<div id="parent-list" class="space-y-2"></div>
+<button type="button" id="add-parent-btn" class="menu-button">Add Parent Item</button>
+</div>
+
+<button type="submit" class="menu-button mt-2">Create Item</button>
+</form>
+</div>
+
+<div>
+<h3 class="font-semibold mb-2">Items</h3>
+<div class="flex gap-2 mb-2">
+<input type="text" id="search-items" placeholder="Search items..." class="input-field">
+<select id="filter-group" class="input-field w-1/3">
+<option value="">All Groups</option>
+</select>
+</div>
+<div id="item-list" class="max-h-80 overflow-y-auto">
+<p class="text-gray-500 text-center">No items yet.</p>
+</div>
+</div>
+</div>
+
+<!-- Character Manager Placeholder -->
+<div id="character-manager" class="container-panel tab-content">
+<h2 class="text-xl font-bold mb-2">Character Manager</h2>
+<p class="text-gray-400">This section will allow you to manage characters later.</p>
+</div>
+
+<!-- Market Manager -->
+<div id="market-manager" class="container-panel tab-content">
+<h2 class="text-xl font-bold mb-2">Market Manager</h2>
+<p class="mb-4 text-gray-400">Create premade offers for testing purposes.</p>
+<button id="create-premade-offers" class="menu-button">Create Premade $1 Offers (Unlimited)</button>
+</div>
+
+<!-- Jobs Manager Placeholder -->
+<div id="jobs-manager" class="container-panel tab-content">
+<h2 class="text-xl font-bold mb-2">Jobs Manager</h2>
+<p class="text-gray-400">This section will allow you to manage jobs later.</p>
+</div>
+
+<!-- Resources Manager Placeholder -->
+<div id="resources-manager" class="container-panel tab-content">
+<h2 class="text-xl font-bold mb-2">Resources Manager</h2>
+<p class="text-gray-400">This section will allow you to manage resources later.</p>
+</div>
+
+</div>
+
+<!-- Modal -->
+<div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center p-4">
+<div class="bg-[#36393f] rounded-lg shadow-xl p-6 w-full max-w-sm">
+<h3 id="modal-title" class="text-lg font-bold mb-2"></h3>
+<p id="modal-message" class="text-gray-400 mb-4"></p>
+<div class="flex justify-end space-x-2">
+<button id="modal-ok-btn" class="menu-button">OK</button>
+</div>
+</div>
 </div>
 
 <script type="module">
+// Firebase setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
@@ -107,109 +181,184 @@ const firebaseConfig = {
     appId: "1:491613307536:web:52f3339b4f12ef7418ce15",
     measurementId: "G-VY4JSL70QV"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const addItemBtn = document.getElementById('add-item-btn');
-const itemList = document.getElementById('item-list');
-const itemNameInput = document.getElementById('item-name');
-const itemParentSelect = document.getElementById('item-parent');
-const itemCategorySelect = document.getElementById('item-category');
+// --- DOM ---
+const tabs = document.querySelectorAll('.menu-button[data-view]');
+const tabContents = document.querySelectorAll('.tab-content');
+const itemListEl = document.getElementById('item-list');
+const createItemForm = document.getElementById('create-item-form');
+const addParentBtn = document.getElementById('add-parent-btn');
+const parentList = document.getElementById('parent-list');
+const searchItemsInput = document.getElementById('search-items');
+const filterGroupSelect = document.getElementById('filter-group');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modal-title');
+const modalMessage = document.getElementById('modal-message');
+const modalOkBtn = document.getElementById('modal-ok-btn');
+const createPremadeBtn = document.getElementById('create-premade-offers');
 
-const searchInput = document.getElementById('search-input');
-const categoryFilter = document.getElementById('category-filter');
-
-const tabButtons = document.querySelectorAll('#gm-menu button');
-const tabSections = document.querySelectorAll('.tab-section');
-
-const createPremadeBtn = document.getElementById('create-premade-btn');
-
-let itemsData = [];
+// --- State ---
+let itemsData = {};
+let parentCount = 0;
 
 // --- Tab Switching ---
-tabButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    tabSections.forEach(sec => sec.classList.add('hidden'));
-    document.getElementById(`${btn.dataset.section}-section`).classList.remove('hidden');
-
-    tabButtons.forEach(b => {
-      b.classList.remove('bg-[#7289da]', 'text-white');
-      b.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
+tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const view = btn.dataset.view;
+        tabContents.forEach(tc => tc.classList.remove('active'));
+        document.getElementById(view).classList.add('active');
     });
-    btn.classList.add('bg-[#7289da]', 'text-white');
-    btn.classList.remove('bg-[#36393f]', 'text-[#dcdcdc]');
-  });
 });
 
-// --- Item Management ---
-async function addItem() {
-  const name = itemNameInput.value.trim();
-  const parent = itemParentSelect.value;
-  const category = itemCategorySelect.value;
+// --- Modal ---
+function showModal(title, message) {
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    modal.classList.remove('hidden');
+}
+modalOkBtn.addEventListener('click', () => modal.classList.add('hidden'));
 
-  if (!name) return;
+// --- Item Manager Functions ---
+function renderItems() {
+    itemListEl.innerHTML = '';
+    const searchTerm = searchItemsInput.value.toLowerCase();
+    const groupFilter = filterGroupSelect.value;
+    const itemsArray = Object.entries(itemsData).filter(([id, item]) => {
+        const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+        const matchesGroup = groupFilter ? item.group === groupFilter : true;
+        return matchesSearch && matchesGroup;
+    });
 
-  const newItem = { name, parent, category, timestamp: Date.now() };
-  await addDoc(collection(db, 'items'), newItem);
+    if(itemsArray.length === 0) {
+        itemListEl.innerHTML = '<p class="text-gray-500 text-center">No items found.</p>';
+        return;
+    }
 
-  itemNameInput.value = '';
-  itemParentSelect.value = '';
-  itemCategorySelect.value = 'material';
-
-  alert('Item created successfully!');
+    itemsArray.forEach(([id, item]) => {
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.innerHTML = `
+            <span>${item.name} (${item.group})</span>
+            <div class="flex gap-2">
+                <button class="button-small bg-green-600" data-id="${id}" data-action="edit">Edit</button>
+                <button class="button-small bg-red-600" data-id="${id}" data-action="remove">Remove</button>
+            </div>
+        `;
+        itemListEl.appendChild(row);
+    });
 }
 
-addItemBtn.addEventListener('click', addItem);
+async function loadItems() {
+    itemsData = {};
+    const snapshot = await getDocs(collection(db, 'items'));
+    snapshot.forEach(docSnap => {
+        itemsData[docSnap.id] = docSnap.data();
+    });
+    populateFilterOptions();
+    renderItems();
+}
 
-// --- Realtime Listeners ---
-onSnapshot(collection(db, 'items'), (snapshot) => {
-  itemsData = [];
-  itemList.innerHTML = '';
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    data.id = doc.id;
-    itemsData.push(data);
+function populateFilterOptions() {
+    const groups = new Set(Object.values(itemsData).map(item => item.group).filter(Boolean));
+    filterGroupSelect.innerHTML = '<option value="">All Groups</option>';
+    groups.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g;
+        opt.textContent = g;
+        filterGroupSelect.appendChild(opt);
+    });
+}
+
+searchItemsInput.addEventListener('input', renderItems);
+filterGroupSelect.addEventListener('change', renderItems);
+
+// Add Parent Item row
+addParentBtn.addEventListener('click', () => {
+    parentCount++;
     const div = document.createElement('div');
-    div.className = 'item-row bg-[#36393f] p-2 rounded-md flex justify-between';
-    div.innerHTML = `<span>${data.name}</span> <span>${data.category}</span>`;
-    itemList.appendChild(div);
-  });
+    div.className = 'flex gap-2';
+    div.innerHTML = `
+        <input type="text" placeholder="Parent Item Name" class="input-field parent-name" required>
+        <input type="number" placeholder="Quantity" class="input-field parent-quantity" min="1" value="1">
+        <button type="button" class="button-small bg-red-600 remove-parent">Remove</button>
+    `;
+    div.querySelector('.remove-parent').addEventListener('click', () => div.remove());
+    parentList.appendChild(div);
 });
 
-// --- Search & Filter ---
-function filterItems() {
-  const search = searchInput.value.toLowerCase();
-  const category = categoryFilter.value;
-  itemList.innerHTML = '';
-  itemsData.filter(item => {
-    return (item.name.toLowerCase().includes(search)) && (category === 'all' || item.category === category);
-  }).forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'item-row bg-[#36393f] p-2 rounded-md flex justify-between';
-    div.innerHTML = `<span>${item.name}</span> <span>${item.category}</span>`;
-    itemList.appendChild(div);
-  });
-}
+// Create Item
+createItemForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('item-name').value.trim();
+    const group = document.getElementById('item-group').value.trim();
+    const buildTime = parseInt(document.getElementById('item-buildtime').value);
 
-searchInput.addEventListener('input', filterItems);
-categoryFilter.addEventListener('change', filterItems);
+    const parents = [];
+    parentList.querySelectorAll('.parent-name').forEach((el, idx) => {
+        const parentName = el.value.trim();
+        const quantity = parseInt(parentList.querySelectorAll('.parent-quantity')[idx].value);
+        if(parentName) parents.push({ name: parentName, quantity });
+    });
 
-// --- Premade Offers ---
+    try {
+        const docRef = await addDoc(collection(db, 'items'), {
+            name, group, buildTime, parents
+        });
+        showModal('Success', 'Item created successfully.');
+        createItemForm.reset();
+        parentList.innerHTML = '';
+        loadItems();
+    } catch(err) {
+        console.error(err);
+        showModal('Error', 'Failed to create item.');
+    }
+});
+
+// Remove/Edit Items
+itemListEl.addEventListener('click', async (e) => {
+    if(e.target.dataset.action === 'remove') {
+        const id = e.target.dataset.id;
+        if(confirm('Are you sure you want to remove this item?')) {
+            await deleteDoc(doc(db, 'items', id));
+            loadItems();
+        }
+    }
+    if(e.target.dataset.action === 'edit') {
+        const id = e.target.dataset.id;
+        const item = itemsData[id];
+        const newName = prompt('Edit Item Name', item.name);
+        if(newName) {
+            await updateDoc(doc(db, 'items', id), { name: newName });
+            loadItems();
+        }
+    }
+});
+
+// --- Market Manager ---
 createPremadeBtn.addEventListener('click', async () => {
-  if (!confirm('This will create $1 unlimited offers for all items. Proceed?')) return;
-  for (const item of itemsData) {
-    await addDoc(collection(db, 'offers'), {
-      itemId: item.id,
-      quantity: 999999,
-      pricePerUnit: 1,
-      type: 'sell',
-      timestamp: Date.now(),
-      sellerId: 'GAMEMASTER'
-    });
-  }
-  alert('Premade offers created!');
+    if(confirm('Create premade $1 offers (unlimited)?')) {
+        try {
+            const premadeItems = [
+                { name: 'Knife', price: 1, quantity: 9999 },
+                { name: 'Wood', price: 1, quantity: 9999 },
+                { name: 'Stone', price: 1, quantity: 9999 }
+            ];
+            for(const item of premadeItems) {
+                await addDoc(collection(db, 'market_offers'), item);
+            }
+            showModal('Success', 'Premade offers created!');
+        } catch(err) {
+            console.error(err);
+            showModal('Error', 'Failed to create premade offers.');
+        }
+    }
 });
+
+// Initialize
+loadItems();
+document.getElementById('item-manager').classList.add('active');
 
 </script>
 </body>
