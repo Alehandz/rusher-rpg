@@ -1,41 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Demand Rusher - Player</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #1f2024;
-      color: #dcdcdc;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demand Rusher - Player Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #2c2f33;
+  color: #dcdcdc;
+}
+.container-panel {
+  background-color: #40444b;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.offer-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #36393f;
+}
+.offer-row:last-child { border-bottom: none; }
+</style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
 
-  <div class="w-full max-w-6xl p-8 space-y-6">
-    <header class="flex justify-between items-center bg-[#2c2f33] p-4 rounded-lg shadow">
-      <h1 class="text-3xl font-bold text-[#7289da]">Demand Rusher</h1>
-      <button id="logoutBtn" class="bg-[#ff5555] text-white px-4 py-2 rounded hover:bg-[#ff4444]">Logout</button>
-    </header>
+<div class="w-full max-w-5xl p-8 space-y-8">
 
-    <main class="space-y-6">
-      <h2 class="text-2xl font-semibold">Player Dashboard</h2>
+<header class="flex justify-between items-center container-panel p-6">
+  <div class="flex-grow flex flex-col items-center">
+    <h1 class="text-4xl font-bold text-[#7289da]">Demand Rusher</h1>
+    <nav class="flex-grow flex justify-center space-x-4 mt-4">
+      <button data-view="market" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+        Market
+      </button>
+      <button data-view="inventory" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+        Inventory
+      </button>
+      <button data-view="crafting" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+        Crafting
+      </button>
+      <button data-view="jobs" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+        Job Offers
+      </button>
+      <button data-view="ranking" class="tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+        Ranking
+      </button>
+    </nav>
+  </div>
+  <div class="flex-shrink-0">
+    <button id="gamemaster-btn" class="bg-[#f04747] text-white font-bold py-2 px-4 rounded-full hover:bg-[#c93d3d] transition duration-200 hidden">
+      GameMaster Mode
+    </button>
+  </div>
+</header>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <a href="inventory.html" class="block bg-[#7289da] text-white font-bold py-4 px-6 rounded-md text-center hover:bg-[#6273c5] transition">Inventory</a>
-        <a href="market.html" class="block bg-[#43b581] text-white font-bold py-4 px-6 rounded-md text-center hover:bg-[#3aa96b] transition">Market</a>
-        <a href="game.html" class="block bg-[#faa61a] text-white font-bold py-4 px-6 rounded-md text-center hover:bg-[#e69515] transition">Start Game</a>
-      </div>
-    </main>
+<div class="main-content flex-grow p-4">
+  <div class="container-panel p-4 flex flex-col md:flex-row justify-between items-center mb-4">
+    <div class="text-lg font-semibold">User: <span id="user-name">Loading...</span></div>
+    <div class="text-lg font-semibold mt-2 md:mt-0">Balance: <span id="player-balance" class="text-green-400">$0.00</span></div>
   </div>
 
-  <!-- Scripts -->
-  <script type="module" src="./player.js"></script>
+  <!-- Market -->
+  <div id="market-view" class="tab-content">
+    <div class="container-panel p-4 space-y-4">
+      <h2 class="text-xl font-bold mb-2">Marketplace</h2>
+      <div id="market-offers" class="space-y-2">
+        <p class="text-gray-400 text-center">Loading market offers...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inventory -->
+  <div id="inventory-view" class="tab-content">
+    <div class="container-panel p-4">
+      <h2 class="text-xl font-bold mb-2">My Inventory</h2>
+      <div id="inventory-list" class="space-y-2">
+        <p class="text-center text-gray-500">Inventory is empty.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crafting -->
+  <div id="crafting-view" class="tab-content">
+    <div class="container-panel p-4">
+      <h2 class="text-xl font-bold mb-2">Crafting Station</h2>
+      <p class="text-gray-400">This section is under construction. Combine items here later.</p>
+    </div>
+  </div>
+
+  <!-- Jobs -->
+  <div id="jobs-view" class="tab-content">
+    <div class="container-panel p-4">
+      <h2 class="text-xl font-bold mb-2">Job Board</h2>
+      <p class="text-gray-400">This section is under construction. Check back later for jobs!</p>
+    </div>
+  </div>
+
+  <!-- Ranking -->
+  <div id="ranking-view" class="tab-content">
+    <div class="container-panel p-4">
+      <h2 class="text-xl font-bold mb-2">Player Rankings</h2>
+      <div id="ranking-list" class="space-y-2">
+        <p class="text-center text-gray-500">Loading rankings...</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script type="module">
+// IMPORT SHARED UTILS & FIREBASE CONFIG
+import { auth, db, onAuthStateChanged } from '../shared/firebase_config.js';
+import { getPlayerInventory, getPlayerBalance, getAllMarketOffers } from './player.js';
+
+const tabButtons = document.querySelectorAll('.tab-button');
+const tabContents = document.querySelectorAll('.tab-content');
+const userNameSpan = document.getElementById('user-name');
+const playerBalanceSpan = document.getElementById('player-balance');
+const inventoryList = document.getElementById('inventory-list');
+const marketOffersDiv = document.getElementById('market-offers');
+const gamemasterBtn = document.getElementById('gamemaster-btn');
+
+function showView(viewName) {
+  tabContents.forEach(view => view.classList.remove('active'));
+  document.getElementById(`${viewName}-view`).classList.add('active');
+  tabButtons.forEach(btn => {
+    btn.classList.remove('bg-[#7289da]', 'text-white');
+    btn.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
+    if (btn.dataset.view === viewName) {
+      btn.classList.add('bg-[#7289da]', 'text-white');
+      btn.classList.remove('bg-[#36393f]', 'text-[#dcdcdc]');
+    }
+  });
+}
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => showView(btn.dataset.view));
+});
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = '../login.html';
+    return;
+  }
+  userNameSpan.textContent = user.displayName || `Player_${user.uid.slice(0,4)}`;
+
+  // Load player info
+  const inventory = await getPlayerInventory(user.uid);
+  const balance = await getPlayerBalance(user.uid);
+  playerBalanceSpan.textContent = `$${balance.toFixed(2)}`;
+
+  // Load market offers
+  const offers = await getAllMarketOffers();
+  marketOffersDiv.innerHTML = '';
+  if (offers.length === 0) marketOffersDiv.innerHTML = '<p class="text-center text-gray-500">No offers yet.</p>';
+  else offers.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'offer-row bg-[#36393f] hover:bg-[#4a4d53] p-2 rounded-md transition duration-200';
+    div.innerHTML = `<span>${o.itemName}</span><span>x${o.quantity}</span><span>$${o.pricePerUnit}</span><span>$${o.totalPrice}</span><span>${o.seller}</span>`;
+    marketOffersDiv.appendChild(div);
+  });
+
+  // Show GM button if applicable
+  if (user.uid === 'AN2gz1aJecYOdoy6qiYiAST94JP2') gamemasterBtn.classList.remove('hidden');
+});
+
+// Default view
+showView('market');
+</script>
+
 </body>
 </html>
