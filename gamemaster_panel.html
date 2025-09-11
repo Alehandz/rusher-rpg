@@ -1,287 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GameMaster Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #2c2f33;
-            color: #dcdcdc;
-        }
-        .container-panel {
-            background-color: #40444b;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .gm-tab-content {
-            display: none;
-        }
-        .gm-tab-content.active {
-            display: block;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameMaster Panel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #2c2f33;
+        color: #dcdcdc;
+    }
+    .container-panel {
+        background-color: #40444b;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .gm-tab-content {
+        display: none;
+    }
+    .gm-tab-content.active {
+        display: block;
+    }
+</style>
 </head>
 <body class="bg-[#2c2f33] min-h-screen flex flex-col items-center">
-    <div class="w-full max-w-5xl p-8 space-y-8">
-        <div class="container-panel p-6 text-center">
-            <h1 class="text-3xl font-bold text-[#7289da]">GameMaster Panel</h1>
-            <p class="text-sm text-gray-400 mt-2">Manage the world of your RPG.</p>
-        </div>
-
-        <!-- GM Navigation Buttons -->
-        <div class="flex space-x-4 justify-center">
-            <button data-gm-view="manage-items" class="gm-tab-button bg-[#7289da] text-white font-bold py-2 px-6 rounded-md hover:bg-[#6273c5] transition duration-200">
-                Manage Items
-            </button>
-            <button data-gm-view="manage-players" class="gm-tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
-                Manage Players
-            </button>
-            <button data-gm-view="manage-jobs" class="gm-tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
-                Manage Jobs
-            </button>
-        </div>
-
-        <!-- Main GM Content Area -->
-        <div class="w-full space-y-6">
-
-            <!-- Manage Items View -->
-            <div id="manage-items-view" class="gm-tab-content active container-panel p-6">
-                <h2 class="text-xl font-bold mb-4">Manage Items and Item Groups</h2>
-                
-                <div class="grid md:grid-cols-2 gap-6">
-                    <!-- Add/Remove Item Form -->
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-semibold">Add New Item</h3>
-                        <input type="text" placeholder="Item Name" id="new-item-name" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                        <input type="text" placeholder="Category (e.g., Food > Vegetables)" id="new-item-category" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                        <div id="recipe-parents-container">
-                            <h4 class="text-sm font-semibold mt-2">Recipe (Parent Items)</h4>
-                            <div class="flex space-x-2 mb-2">
-                                <input type="text" placeholder="Parent Item Name" class="parent-item p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
-                                <input type="number" placeholder="Quantity" class="parent-quantity p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-24">
-                            </div>
-                        </div>
-                        <button id="add-parent-btn" class="bg-[#7289da] text-white py-1 px-3 rounded-md text-sm hover:bg-[#6273c5]">Add Another Parent</button>
-                        <input type="number" placeholder="Production Time (minutes)" id="production-time" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a] mt-2">
-                        <button id="add-item-btn" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5]">
-                            Add Item
-                        </button>
-                        <p id="item-message" class="text-green-400 mt-2"></p>
-                    </div>
-
-                    <!-- Item List -->
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-semibold">Existing Items</h3>
-                        <div id="item-list" class="space-y-2 max-h-80 overflow-y-auto">
-                            <!-- Items will be dynamically listed here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Manage Players View -->
-            <div id="manage-players-view" class="gm-tab-content container-panel p-6">
-                <h2 class="text-xl font-bold mb-4">Manage Players</h2>
-                <input type="text" id="player-search" placeholder="Search for player by User ID..." class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a] mb-4">
-                
-                <div class="bg-[#36393f] p-4 rounded-md">
-                    <h3 class="text-lg font-semibold mb-2">Player Details</h3>
-                    <div id="player-details">
-                        <p class="text-gray-400">Search for a player to see their details here.</p>
-                    </div>
-                </div>
-
-                <div class="bg-[#36393f] p-4 rounded-md mt-4">
-                    <h3 class="text-lg font-semibold mb-2">Modify Player</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="number" placeholder="New Balance" class="p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                        <button class="bg-[#7289da] text-white py-2 px-4 rounded-md hover:bg-[#6273c5]">Update Balance</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Manage Jobs View -->
-            <div id="manage-jobs-view" class="gm-tab-content container-panel p-6">
-                <h2 class="text-xl font-bold mb-4">Manage Job Offers</h2>
-                <div class="space-y-4">
-                    <h3 class="text-lg font-semibold">Create New Job Offer</h3>
-                    <input type="text" placeholder="Job Title" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                    <textarea placeholder="Job Description" rows="4" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]"></textarea>
-                    <input type="number" placeholder="Reward Amount ($)" step="0.01" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                    <button class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5]">
-                        Publish Job
-                    </button>
-                </div>
-                
-                <div class="mt-8 space-y-4">
-                    <h3 class="text-lg font-semibold">Current Job Offers</h3>
-                    <div id="job-list" class="space-y-2 max-h-80 overflow-y-auto">
-                        <!-- Jobs will be dynamically listed here -->
-                        <div class="p-3 bg-[#36393f] rounded-md flex justify-between items-center">
-                            <span>Gather 100 Wood Logs</span>
-                            <button class="text-red-400 hover:text-red-500">Remove</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="w-full max-w-5xl p-8 space-y-8">
+    <div class="container-panel p-6 text-center">
+        <h1 class="text-3xl font-bold text-[#7289da]">GameMaster Panel</h1>
+        <p class="text-sm text-gray-400 mt-2">Manage the world of your RPG.</p>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- GM Navigation Buttons -->
+    <div class="flex space-x-4 justify-center">
+        <button data-gm-view="manage-items" class="gm-tab-button bg-[#7289da] text-white font-bold py-2 px-6 rounded-md hover:bg-[#6273c5] transition duration-200">
+            Manage Items
+        </button>
+        <button data-gm-view="manage-players" class="gm-tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+            Manage Players
+        </button>
+        <button data-gm-view="manage-jobs" class="gm-tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+            Manage Jobs
+        </button>
+    </div>
 
-        // Firebase config
-        const firebaseConfig = {
-            apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
-            authDomain: "demand-rusher.firebaseapp.com",
-            projectId: "demand-rusher",
-            storageBucket: "demand-rusher.firebasestorage.app",
-            messagingSenderId: "491613307536",
-            appId: "1:491613307536:web:52f3339b4f12ef7418ce15",
-            measurementId: "G-VY4JSL70QV"
-        };
+    <!-- Main GM Content Area -->
+    <div class="w-full space-y-6">
 
-        // Firebase global variables
-        let app;
-        let db;
-        let auth;
+        <!-- Manage Items View -->
+        <div id="manage-items-view" class="gm-tab-content active container-panel p-6">
+            <h2 class="text-xl font-bold mb-4">Manage Items and Item Groups</h2>
 
-        // DOM References
-        const gmTabButtons = document.querySelectorAll('.gm-tab-button');
-        const gmTabContents = document.querySelectorAll('.gm-tab-content');
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Add/Remove Item Form -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold">Add New Item</h3>
+                    <input type="text" placeholder="Item Name" id="new-item-name" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                    <input type="text" placeholder="Category (group > subgroup)" id="new-item-category" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                    
+                    <!-- Recipe Parent Items -->
+                    <div id="recipe-parents" class="space-y-2">
+                        <label class="text-sm">Parent Item (Optional)</label>
+                        <div class="flex space-x-2">
+                            <input type="text" placeholder="Parent Item Name" class="parent-item-name p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
+                            <input type="number" placeholder="Qty" class="parent-item-qty p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-20">
+                        </div>
+                    </div>
+                    <button id="add-parent-btn" class="bg-[#4a90e2] text-white py-1 px-3 rounded-md hover:bg-[#3b78c1]">Add Another Parent</button>
+                    
+                    <!-- Production Time -->
+                    <input type="number" placeholder="Production Time (seconds)" id="new-item-production" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
 
-        // --- UI Functions ---
-        function showGMView(viewName) {
-            gmTabContents.forEach(view => view.classList.remove('active'));
-            document.getElementById(`${viewName}-view`).classList.add('active');
+                    <button id="add-item-btn" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5]">
+                        Add Item
+                    </button>
+                </div>
 
-            gmTabButtons.forEach(button => {
-                button.classList.remove('bg-[#7289da]', 'text-white');
-                button.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
-                if (button.dataset.gmView === viewName) {
-                    button.classList.add('bg-[#7289da]', 'text-white');
-                    button.classList.remove('bg-[#36393f]', 'text-[#dcdcdc]');
-                }
-            });
+                <!-- Items List -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold">Items</h3>
+                    <input type="text" id="search-item" placeholder="Search item..." class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a] mb-2">
+                    <input type="text" id="filter-category" placeholder="Filter by Category..." class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a] mb-2">
+
+                    <div id="item-list" class="space-y-2 max-h-80 overflow-y-auto">
+                        <!-- Items will be dynamically listed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Players View -->
+        <div id="manage-players-view" class="gm-tab-content container-panel p-6">
+            <h2 class="text-xl font-bold mb-4">Manage Players</h2>
+            <input type="text" id="player-search" placeholder="Search for player by User ID..." class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a] mb-4">
+
+            <div class="bg-[#36393f] p-4 rounded-md">
+                <h3 class="text-lg font-semibold mb-2">Player Details</h3>
+                <div id="player-details">
+                    <p class="text-gray-400">Search for a player to see their details here.</p>
+                </div>
+            </div>
+
+            <div class="bg-[#36393f] p-4 rounded-md mt-4">
+                <h3 class="text-lg font-semibold mb-2">Modify Player</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" placeholder="New Balance" class="p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                    <button class="bg-[#7289da] text-white py-2 px-4 rounded-md hover:bg-[#6273c5]">Update Balance</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Jobs View -->
+        <div id="manage-jobs-view" class="gm-tab-content container-panel p-6">
+            <h2 class="text-xl font-bold mb-4">Manage Job Offers</h2>
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold">Create New Job Offer</h3>
+                <input type="text" placeholder="Job Title" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                <textarea placeholder="Job Description" rows="4" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]"></textarea>
+                <input type="number" placeholder="Reward Amount ($)" step="0.01" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                <button class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5]">
+                    Publish Job
+                </button>
+            </div>
+
+            <div class="mt-8 space-y-4">
+                <h3 class="text-lg font-semibold">Current Job Offers</h3>
+                <div id="job-list" class="space-y-2 max-h-80 overflow-y-auto">
+                    <!-- Jobs will be dynamically listed here -->
+                    <div class="p-3 bg-[#36393f] rounded-md flex justify-between items-center">
+                        <span>Gather 100 Wood Logs</span>
+                        <button class="text-red-400 hover:text-red-500">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
+    authDomain: "demand-rusher.firebaseapp.com",
+    projectId: "demand-rusher",
+    storageBucket: "demand-rusher.firebasestorage.app",
+    messagingSenderId: "491613307536",
+    appId: "1:491613307536:web:52f3339b4f12ef7418ce15",
+    measurementId: "G-VY4JSL70QV"
+};
+
+let app = initializeApp(firebaseConfig);
+let db = getFirestore(app);
+let auth = getAuth(app);
+
+// DOM References
+const gmTabButtons = document.querySelectorAll('.gm-tab-button');
+const gmTabContents = document.querySelectorAll('.gm-tab-content');
+const addItemBtn = document.getElementById('add-item-btn');
+const itemListContainer = document.getElementById('item-list');
+const searchInput = document.getElementById('search-item');
+const filterCategoryInput = document.getElementById('filter-category');
+const addParentBtn = document.getElementById('add-parent-btn');
+const recipeParentsDiv = document.getElementById('recipe-parents');
+
+// --- UI Functions ---
+function showGMView(viewName) {
+    gmTabContents.forEach(view => view.classList.remove('active'));
+    document.getElementById(`${viewName}-view`).classList.add('active');
+
+    gmTabButtons.forEach(button => {
+        button.classList.remove('bg-[#7289da]', 'text-white');
+        button.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
+        if (button.dataset.gmView === viewName) {
+            button.classList.add('bg-[#7289da]', 'text-white');
+            button.classList.remove('bg-[#36393f]', 'text-[#dcdcdc]');
         }
+    });
+}
 
-        gmTabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                showGMView(button.dataset.gmView);
-            });
+// Add another parent input
+addParentBtn.addEventListener('click', () => {
+    const div = document.createElement('div');
+    div.classList.add('flex', 'space-x-2', 'mt-1');
+    div.innerHTML = `
+        <input type="text" placeholder="Parent Item Name" class="parent-item-name p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
+        <input type="number" placeholder="Qty" class="parent-item-qty p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-20">
+    `;
+    recipeParentsDiv.appendChild(div);
+});
+
+// --- Item CRUD ---
+async function listItems() {
+    itemListContainer.innerHTML = '';
+    const itemsSnapshot = await getDocs(collection(db, "items"));
+    let items = [];
+    itemsSnapshot.forEach(doc => {
+        const data = doc.data();
+        data.id = doc.id;
+        items.push(data);
+    });
+
+    const searchText = searchInput.value.toLowerCase();
+    const categoryFilter = filterCategoryInput.value.toLowerCase();
+
+    items.filter(item => 
+        item.name.toLowerCase().includes(searchText) &&
+        item.category.toLowerCase().includes(categoryFilter)
+    ).forEach(item => {
+        const div = document.createElement('div');
+        div.classList.add('p-3', 'bg-[#36393f]', 'rounded-md', 'flex', 'justify-between', 'items-center');
+        div.innerHTML = `
+            <span>${item.name} (${item.category})</span>
+            <button class="text-red-400 hover:text-red-500" onclick="deleteItem('${item.id}')">Remove</button>
+        `;
+        itemListContainer.appendChild(div);
+    });
+}
+
+// Add item
+addItemBtn.addEventListener('click', async () => {
+    const name = document.getElementById('new-item-name').value;
+    const category = document.getElementById('new-item-category').value;
+    const productionTime = parseInt(document.getElementById('new-item-production').value) || 0;
+
+    // Collect recipe parents
+    const parents = [];
+    const parentNames = document.querySelectorAll('.parent-item-name');
+    const parentQtys = document.querySelectorAll('.parent-item-qty');
+
+    for (let i = 0; i < parentNames.length; i++) {
+        const pname = parentNames[i].value.trim();
+        const pqty = parseInt(parentQtys[i].value);
+        if (pname && pqty > 0) {
+            parents.push({ name: pname, qty: pqty });
+        }
+    }
+
+    try {
+        await addDoc(collection(db, "items"), {
+            name,
+            category,
+            parents,
+            productionTime
         });
+        alert('Item created successfully!');
+        document.getElementById('new-item-name').value = '';
+        document.getElementById('new-item-category').value = '';
+        document.getElementById('new-item-production').value = '';
+        recipeParentsDiv.innerHTML = `
+            <label class="text-sm">Parent Item (Optional)</label>
+            <div class="flex space-x-2">
+                <input type="text" placeholder="Parent Item Name" class="parent-item-name p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
+                <input type="number" placeholder="Qty" class="parent-item-qty p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-20">
+            </div>
+        `;
+        listItems();
+    } catch (err) {
+        alert('Error creating item: ' + err.message);
+    }
+});
 
-        // --- App Initialization ---
-        window.onload = function() {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
+// Search & Filter
+searchInput.addEventListener('input', listItems);
+filterCategoryInput.addEventListener('input', listItems);
 
-            const gameMasterId = 'AN2gz1aJecYOdoy6qiYiAST94JP2';
+// Delete item (optional)
+window.deleteItem = async (id) => {
+    const docRef = collection(db, "items");
+    await deleteDoc(docRef(id));
+    listItems();
+};
 
-            onAuthStateChanged(auth, async (user) => {
-                if (user && user.uid === gameMasterId) {
-                    console.log('GameMaster Logged in.');
-                    showGMView('manage-items');
+// --- Event Listeners ---
+gmTabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        showGMView(button.dataset.gmView);
+    });
+});
 
-                    const itemListContainer = document.getElementById('item-list');
-                    const itemMessage = document.getElementById('item-message');
-                    const addItemBtn = document.getElementById('add-item-btn');
-                    const addParentBtn = document.getElementById('add-parent-btn');
-                    const recipeParentsContainer = document.getElementById('recipe-parents-container');
-
-                    // Function to list items in the UI
-                    async function listItemsUI() {
-                        itemListContainer.innerHTML = '';
-                        const itemsSnapshot = await getDocs(collection(db, "items"));
-                        itemsSnapshot.forEach(doc => {
-                            const data = doc.data();
-                            const div = document.createElement('div');
-                            div.className = 'p-3 bg-[#36393f] rounded-md flex justify-between items-center';
-                            div.innerHTML = `<span>${data.name} (${data.category})</span><button class="text-red-400 hover:text-red-500">Remove</button>`;
-                            itemListContainer.appendChild(div);
-                        });
-                    }
-
-                    await listItemsUI();
-
-                    // Add new parent input
-                    addParentBtn.addEventListener('click', () => {
-                        const div = document.createElement('div');
-                        div.className = 'flex space-x-2 mb-2';
-                        div.innerHTML = `
-                            <input type="text" placeholder="Parent Item Name" class="parent-item p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
-                            <input type="number" placeholder="Quantity" class="parent-quantity p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-24">
-                        `;
-                        recipeParentsContainer.appendChild(div);
-                    });
-
-                    // Add item button
-                    addItemBtn.addEventListener('click', async () => {
-                        const name = document.getElementById('new-item-name').value.trim();
-                        const category = document.getElementById('new-item-category').value.trim();
-                        const productionTime = parseInt(document.getElementById('production-time').value) || 0;
-
-                        const parentItems = [];
-                        recipeParentsContainer.querySelectorAll('div').forEach(div => {
-                            const pname = div.querySelector('.parent-item').value.trim();
-                            const pqty = parseInt(div.querySelector('.parent-quantity').value) || 1;
-                            if(pname) parentItems.push({ name: pname, quantity: pqty });
-                        });
-
-                        if (!name || !category || parentItems.length === 0) {
-                            itemMessage.textContent = 'Please fill all fields and add at least one parent item.';
-                            itemMessage.style.color = 'red';
-                            return;
-                        }
-
-                        const newItem = {
-                            name,
-                            category,
-                            productionTime,
-                            recipe: parentItems,
-                            createdAt: new Date()
-                        };
-
-                        try {
-                            await addDoc(collection(db, 'items'), newItem);
-                            itemMessage.textContent = 'Item created successfully!';
-                            itemMessage.style.color = 'green';
-                            document.getElementById('new-item-name').value = '';
-                            document.getElementById('new-item-category').value = '';
-                            document.getElementById('production-time').value = '';
-                            // Clear all parent inputs except first
-                            const parentDivs = recipeParentsContainer.querySelectorAll('div');
-                            parentDivs.forEach((div, index) => {
-                                if(index === 0){
-                                    div.querySelector('.parent-item').value = '';
-                                    div.querySelector('.parent-quantity').value = '';
-                                } else {
-                                    div.remove();
-                                }
-                            });
-
-                            await listItemsUI();
-                        } catch(err) {
-                            console.error(err);
-                            itemMessage.textContent = 'Failed to create item.';
-                            itemMessage.style.color = 'red';
-                        }
-                    });
-
-                } else {
-                    window.location.href = 'index.html';
-                }
-            });
-        };
-    </script>
+// --- App Initialization ---
+const gameMasterId = 'AN2gz1aJecYOdoy6qiYiAST94JP2';
+onAuthStateChanged(auth, user => {
+    if (user && user.uid === gameMasterId) {
+        console.log('GameMaster Logged in.');
+        listItems();
+        showGMView('manage-items');
+    } else {
+        window.location.href = 'index.html';
+    }
+});
+</script>
 </body>
 </html>
