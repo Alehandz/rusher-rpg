@@ -1,23 +1,20 @@
-import { getAuth, signOut } from '../shared/utils.js';
-import { initializeApp } from '../shared/firebase_config.js';
-
-const app = initializeApp();
-const auth = getAuth();
+// player/player.js
+import { auth } from '../shared/firebase_config.js';
+import { signOutUser, formatDate, getQueryParam } from '../shared/utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // Example: logout button
   const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      signOutUser();
+    });
+  }
 
-  logoutBtn.addEventListener('click', async () => {
-    try {
-      await signOut(auth);
-      alert('Logged out successfully!');
-      window.location.href = '../login.html';
-    } catch (error) {
-      console.error('Logout failed:', error);
-      alert('Logout failed. Check console.');
-    }
-  });
+  // Example: show current user info
+  if (auth.currentUser) {
+    console.log('Current user:', auth.currentUser.displayName);
+  }
 
-  console.log('Player dashboard loaded.');
 });
-
