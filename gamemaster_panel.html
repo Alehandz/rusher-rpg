@@ -55,24 +55,21 @@
                 <h2 class="text-xl font-bold mb-4">Manage Items and Item Groups</h2>
                 
                 <div class="grid md:grid-cols-2 gap-6">
-                    <!-- Add New Item Form -->
+                    <!-- Add/Remove Item Form -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold">Add New Item</h3>
                         <input type="text" placeholder="Item Name" id="new-item-name" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                        <input type="text" placeholder="Category (Group>Subgroup)" id="new-item-category" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                        <input type="text" placeholder="Category (e.g., Food > Vegetables)" id="new-item-category" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                        <input type="number" placeholder="Production Time (seconds)" id="new-item-production-time" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
 
-                        <!-- Recipe -->
                         <div id="recipe-container" class="space-y-2">
-                            <label class="font-semibold">Recipe</label>
+                            <h4 class="font-semibold">Recipe (Parent Items)</h4>
                             <div class="recipe-row flex space-x-2">
-                                <input type="text" placeholder="Parent Item ID" class="recipe-item p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
-                                <input type="number" placeholder="Quantity" min="1" class="recipe-quantity p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-24">
-                                <button type="button" class="add-recipe-btn bg-[#7289da] text-white px-2 rounded-md">+</button>
+                                <input type="text" placeholder="Parent Item ID" class="recipe-item p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                                <input type="number" placeholder="Quantity" class="recipe-quantity p-2 bg-[#2f3136] rounded-md border border-[#52555a] min=1">
+                                <button type="button" class="bg-[#7289da] text-white px-2 rounded-md add-parent-btn">+</button>
                             </div>
                         </div>
-
-                        <!-- Production time -->
-                        <input type="number" placeholder="Production Time (seconds)" id="new-item-production-time" min="1" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
 
                         <button id="add-item-btn" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5]">
                             Add Item
@@ -84,10 +81,6 @@
                         <h3 class="text-lg font-semibold">Existing Items</h3>
                         <div id="item-list" class="space-y-2 max-h-80 overflow-y-auto">
                             <!-- Items will be dynamically listed here -->
-                            <div class="p-3 bg-[#36393f] rounded-md flex justify-between items-center">
-                                <span>Example Item</span>
-                                <button class="text-red-400 hover:text-red-500">Remove</button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -131,10 +124,6 @@
                     <h3 class="text-lg font-semibold">Current Job Offers</h3>
                     <div id="job-list" class="space-y-2 max-h-80 overflow-y-auto">
                         <!-- Jobs will be dynamically listed here -->
-                        <div class="p-3 bg-[#36393f] rounded-md flex justify-between items-center">
-                            <span>Gather 100 Wood Logs</span>
-                            <button class="text-red-400 hover:text-red-500">Remove</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -151,7 +140,7 @@
         let db;
         let auth;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? '{}');
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 
         // DOM References
         const gmTabButtons = document.querySelectorAll('.gm-tab-button');
@@ -171,7 +160,7 @@
                 }
             });
         }
-
+        
         // --- Event Listeners ---
         gmTabButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -179,39 +168,22 @@
             });
         });
 
-        // --- App Initialization ---
-        window.onload = function() {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            const gameMasterId = 'AN2gz1aJecYOdoy6qiYiAST94JP2';
-            onAuthStateChanged(auth, async (user) => {
-                if (user && user.uid === gameMasterId) {
-                    console.log('GameMaster Logged in. Welcome.');
-                    showGMView('manage-items');
-                } else {
-                    window.location.href = 'index.html';
-                }
-            });
-        };
-
         // --- Recipe dynamic rows ---
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('add-recipe-btn')) {
-                const container = e.target.closest('#recipe-container');
-                const newRow = e.target.closest('.recipe-row').cloneNode(true);
+        const recipeContainer = document.getElementById('recipe-container');
+        recipeContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('add-parent-btn')) {
+                const newRow = e.target.parentNode.cloneNode(true);
                 newRow.querySelectorAll('input').forEach(input => input.value = '');
-                container.appendChild(newRow);
+                recipeContainer.appendChild(newRow);
             }
         });
 
-        // --- Generate item ID ---
+        // --- Generate Item ID ---
         function generateItemId(name) {
-            return 'item_' + name.toLowerCase().replace(/\s+/g, '_');
+            return name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
         }
 
-        // --- Add New Item ---
+        // --- Add Item ---
         document.getElementById('add-item-btn').addEventListener('click', async () => {
             const name = document.getElementById('new-item-name').value.trim();
             const category = document.getElementById('new-item-category').value.trim();
@@ -245,7 +217,8 @@
                     recipe,
                     productionTime
                 });
-                alert('Item created successfully!');
+                alert('✅ Item created successfully in the database!');
+
                 // Clear form
                 document.getElementById('new-item-name').value = '';
                 document.getElementById('new-item-category').value = '';
@@ -256,9 +229,26 @@
                 });
             } catch (err) {
                 console.error(err);
-                alert('Failed to create item.');
+                alert('❌ Failed to create item. Check console for details.');
             }
         });
+
+        // --- App Initialization ---
+        window.onload = function() {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            const gameMasterId = 'AN2gz1aJecYOdoy6qiYiAST94JP2';
+            onAuthStateChanged(auth, async (user) => {
+                if (user && user.uid === gameMasterId) {
+                    console.log('GameMaster Logged in. Welcome.');
+                    showGMView('manage-items'); // Show the default view
+                } else {
+                    window.location.href = 'index.html';
+                }
+            });
+        };
     </script>
 </body>
 </html>
