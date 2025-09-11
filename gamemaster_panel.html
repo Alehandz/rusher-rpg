@@ -59,23 +59,20 @@
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold">Add New Item</h3>
                         <input type="text" placeholder="Item Name" id="new-item-name" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                        <input type="text" placeholder="Category (e.g., Food>Vegetables)" id="new-item-category" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                        
-                        <div id="recipe-parents" class="space-y-2">
-                            <h4 class="font-semibold">Recipe (Parent Items)</h4>
-                            <div class="flex space-x-2">
-                                <input type="text" placeholder="Parent Item Name" class="recipe-parent-name p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
-                                <input type="number" placeholder="Quantity" class="recipe-parent-qty p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-24">
-                                <button class="add-parent-btn bg-[#7289da] text-white px-3 rounded-md">+</button>
+                        <input type="text" placeholder="Category (e.g., Food > Vegetables)" id="new-item-category" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                        <div id="recipe-parents-container">
+                            <h4 class="text-sm font-semibold mt-2">Recipe (Parent Items)</h4>
+                            <div class="flex space-x-2 mb-2">
+                                <input type="text" placeholder="Parent Item Name" class="parent-item p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
+                                <input type="number" placeholder="Quantity" class="parent-quantity p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-24">
                             </div>
                         </div>
-
-                        <input type="number" id="production-time" placeholder="Production Time (seconds)" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
-                        
+                        <button id="add-parent-btn" class="bg-[#7289da] text-white py-1 px-3 rounded-md text-sm hover:bg-[#6273c5]">Add Another Parent</button>
+                        <input type="number" placeholder="Production Time (minutes)" id="production-time" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a] mt-2">
                         <button id="add-item-btn" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5]">
                             Add Item
                         </button>
-                        <p id="add-item-message" class="text-green-400 font-semibold mt-2"></p>
+                        <p id="item-message" class="text-green-400 mt-2"></p>
                     </div>
 
                     <!-- Item List -->
@@ -124,7 +121,13 @@
                 
                 <div class="mt-8 space-y-4">
                     <h3 class="text-lg font-semibold">Current Job Offers</h3>
-                    <div id="job-list" class="space-y-2 max-h-80 overflow-y-auto"></div>
+                    <div id="job-list" class="space-y-2 max-h-80 overflow-y-auto">
+                        <!-- Jobs will be dynamically listed here -->
+                        <div class="p-3 bg-[#36393f] rounded-md flex justify-between items-center">
+                            <span>Gather 100 Wood Logs</span>
+                            <button class="text-red-400 hover:text-red-500">Remove</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -133,9 +136,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Config
+        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
             authDomain: "demand-rusher.firebaseapp.com",
@@ -146,10 +149,10 @@
             measurementId: "G-VY4JSL70QV"
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        // Firebase global variables
+        let app;
+        let db;
+        let auth;
 
         // DOM References
         const gmTabButtons = document.querySelectorAll('.gm-tab-button');
@@ -159,6 +162,7 @@
         function showGMView(viewName) {
             gmTabContents.forEach(view => view.classList.remove('active'));
             document.getElementById(`${viewName}-view`).classList.add('active');
+
             gmTabButtons.forEach(button => {
                 button.classList.remove('bg-[#7289da]', 'text-white');
                 button.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
@@ -168,84 +172,111 @@
                 }
             });
         }
-        
-        // Tab Switching
+
         gmTabButtons.forEach(button => {
             button.addEventListener('click', () => {
                 showGMView(button.dataset.gmView);
             });
         });
 
-        // --- Add Recipe Parent Row ---
-        document.querySelectorAll('.add-parent-btn').forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.preventDefault();
-                const container = document.getElementById('recipe-parents');
-                const newRow = document.createElement('div');
-                newRow.classList.add('flex', 'space-x-2', 'mt-2');
-                newRow.innerHTML = `
-                    <input type="text" placeholder="Parent Item Name" class="recipe-parent-name p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
-                    <input type="number" placeholder="Quantity" class="recipe-parent-qty p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-24">
-                    <button class="remove-parent-btn bg-red-500 text-white px-3 rounded-md">-</button>
-                `;
-                container.appendChild(newRow);
-                newRow.querySelector('.remove-parent-btn').addEventListener('click', () => newRow.remove());
-            });
-        });
-
-        // --- Add New Item ---
-        document.getElementById('add-item-btn').addEventListener('click', async () => {
-            const name = document.getElementById('new-item-name').value.trim();
-            const category = document.getElementById('new-item-category').value.trim();
-            const productionTime = Number(document.getElementById('production-time').value);
-
-            const parentNames = Array.from(document.querySelectorAll('.recipe-parent-name')).map(input => input.value.trim()).filter(v => v);
-            const parentQtys = Array.from(document.querySelectorAll('.recipe-parent-qty')).map(input => Number(input.value));
-
-            if(!name || !category || parentNames.length === 0 || parentQtys.length !== parentNames.length) {
-                alert('Please fill all item and recipe information correctly.');
-                return;
-            }
-
-            const recipe = parentNames.map((pn, i) => ({ name: pn, qty: parentQtys[i] }));
-            const itemId = 'item_' + Date.now(); // auto-generated ID
-
-            try {
-                await addDoc(collection(db, 'items'), {
-                    itemId,
-                    name,
-                    category,
-                    recipe,
-                    productionTime
-                });
-
-                // Clear inputs
-                document.getElementById('new-item-name').value = '';
-                document.getElementById('new-item-category').value = '';
-                document.getElementById('production-time').value = '';
-                document.querySelectorAll('.recipe-parent-name').forEach((el, i) => {
-                    if(i === 0) el.value = '';
-                    else el.closest('div').remove();
-                });
-                document.querySelectorAll('.recipe-parent-qty').forEach((el, i) => {
-                    if(i === 0) el.value = '';
-                });
-
-                // Success message
-                document.getElementById('add-item-message').textContent = `Item "${name}" has been created successfully!`;
-            } catch(err) {
-                console.error(err);
-                alert('Error creating item. Check console for details.');
-            }
-        });
-
-        // --- Authentication ---
+        // --- App Initialization ---
         window.onload = function() {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
             const gameMasterId = 'AN2gz1aJecYOdoy6qiYiAST94JP2';
-            onAuthStateChanged(auth, (user) => {
-                if(user && user.uid === gameMasterId){
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user && user.uid === gameMasterId) {
                     console.log('GameMaster Logged in.');
                     showGMView('manage-items');
+
+                    const itemListContainer = document.getElementById('item-list');
+                    const itemMessage = document.getElementById('item-message');
+                    const addItemBtn = document.getElementById('add-item-btn');
+                    const addParentBtn = document.getElementById('add-parent-btn');
+                    const recipeParentsContainer = document.getElementById('recipe-parents-container');
+
+                    // Function to list items in the UI
+                    async function listItemsUI() {
+                        itemListContainer.innerHTML = '';
+                        const itemsSnapshot = await getDocs(collection(db, "items"));
+                        itemsSnapshot.forEach(doc => {
+                            const data = doc.data();
+                            const div = document.createElement('div');
+                            div.className = 'p-3 bg-[#36393f] rounded-md flex justify-between items-center';
+                            div.innerHTML = `<span>${data.name} (${data.category})</span><button class="text-red-400 hover:text-red-500">Remove</button>`;
+                            itemListContainer.appendChild(div);
+                        });
+                    }
+
+                    await listItemsUI();
+
+                    // Add new parent input
+                    addParentBtn.addEventListener('click', () => {
+                        const div = document.createElement('div');
+                        div.className = 'flex space-x-2 mb-2';
+                        div.innerHTML = `
+                            <input type="text" placeholder="Parent Item Name" class="parent-item p-2 bg-[#2f3136] rounded-md border border-[#52555a] flex-1">
+                            <input type="number" placeholder="Quantity" class="parent-quantity p-2 bg-[#2f3136] rounded-md border border-[#52555a] w-24">
+                        `;
+                        recipeParentsContainer.appendChild(div);
+                    });
+
+                    // Add item button
+                    addItemBtn.addEventListener('click', async () => {
+                        const name = document.getElementById('new-item-name').value.trim();
+                        const category = document.getElementById('new-item-category').value.trim();
+                        const productionTime = parseInt(document.getElementById('production-time').value) || 0;
+
+                        const parentItems = [];
+                        recipeParentsContainer.querySelectorAll('div').forEach(div => {
+                            const pname = div.querySelector('.parent-item').value.trim();
+                            const pqty = parseInt(div.querySelector('.parent-quantity').value) || 1;
+                            if(pname) parentItems.push({ name: pname, quantity: pqty });
+                        });
+
+                        if (!name || !category || parentItems.length === 0) {
+                            itemMessage.textContent = 'Please fill all fields and add at least one parent item.';
+                            itemMessage.style.color = 'red';
+                            return;
+                        }
+
+                        const newItem = {
+                            name,
+                            category,
+                            productionTime,
+                            recipe: parentItems,
+                            createdAt: new Date()
+                        };
+
+                        try {
+                            await addDoc(collection(db, 'items'), newItem);
+                            itemMessage.textContent = 'Item created successfully!';
+                            itemMessage.style.color = 'green';
+                            document.getElementById('new-item-name').value = '';
+                            document.getElementById('new-item-category').value = '';
+                            document.getElementById('production-time').value = '';
+                            // Clear all parent inputs except first
+                            const parentDivs = recipeParentsContainer.querySelectorAll('div');
+                            parentDivs.forEach((div, index) => {
+                                if(index === 0){
+                                    div.querySelector('.parent-item').value = '';
+                                    div.querySelector('.parent-quantity').value = '';
+                                } else {
+                                    div.remove();
+                                }
+                            });
+
+                            await listItemsUI();
+                        } catch(err) {
+                            console.error(err);
+                            itemMessage.textContent = 'Failed to create item.';
+                            itemMessage.style.color = 'red';
+                        }
+                    });
+
                 } else {
                     window.location.href = 'index.html';
                 }
