@@ -1,18 +1,25 @@
-// firebase-config.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+// shared/firebase_config.js
 
-// 🔥 replace with your own Firebase config
+// Import Firebase modules
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+
+// Your Firebase config
 const firebaseConfig = {
-    apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
-    authDomain: "demand-rusher.firebaseapp.com",
-    projectId: "demand-rusher",
-    storageBucket: "demand-rusher.firebasestorage.app",
-    messagingSenderId: "491613307536",
-    appId: "1:491613307536:web:52f3339b4f12ef7418ce15",
-    measurementId: "G-VY4JSL70QV"
+  apiKey: "AIzaSyD4f8b6d8d8e8d8d8d8d8d8d8d8d8d8d8d8d8d8",
+  authDomain: "demand-rusher.firebaseapp.com",
+  projectId: "demand-rusher",
+  storageBucket: "demand-rusher.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:abcdef1234567890abcdef",
+  measurementId: "G-1ABC2DEF3G"
 };
 
-// Initialize
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const db = getDatabase(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Export for other scripts
+export { app, auth, db };
