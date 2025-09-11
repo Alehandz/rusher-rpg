@@ -13,6 +13,7 @@ body { font-family: 'Inter', sans-serif; background-color: #2c2f33; color: #dcdc
 .container-panel { background-color: #40444b; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px; }
 .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #36393f; }
 .item-row:last-child { border-bottom: none; }
+input, select { background-color: #2f3136; color: #fff; }
 </style>
 </head>
 <body class="bg-[#2c2f33] min-h-screen flex flex-col items-center p-4">
@@ -21,41 +22,19 @@ body { font-family: 'Inter', sans-serif; background-color: #2c2f33; color: #dcdc
 
 <h1 class="text-3xl font-bold text-[#7289da] mb-4">Item Manager</h1>
 
-<!-- Create New Item Form -->
-<div class="container-panel">
-  <h2 class="text-xl font-bold mb-4">Create New Item</h2>
-  <form id="create-item-form" class="space-y-3">
-    <div>
-      <label class="block mb-1">Item Name</label>
-      <input type="text" id="item-name" required class="w-full p-2 rounded-md bg-[#2f3136] focus:outline-none focus:ring-1 focus:ring-[#7289da]">
-    </div>
-    <div>
-      <label class="block mb-1">Parent Items (comma separated, e.g., Wood 1x, Bone 1x)</label>
-      <input type="text" id="item-parents" class="w-full p-2 rounded-md bg-[#2f3136] focus:outline-none focus:ring-1 focus:ring-[#7289da]">
-    </div>
-    <div>
-      <label class="block mb-1">Build Time (seconds)</label>
-      <input type="number" id="item-time" min="0" class="w-full p-2 rounded-md bg-[#2f3136] focus:outline-none focus:ring-1 focus:ring-[#7289da]">
-    </div>
-    <div>
-      <label class="block mb-1">Group Name</label>
-      <input type="text" id="item-group" class="w-full p-2 rounded-md bg-[#2f3136] focus:outline-none focus:ring-1 focus:ring-[#7289da]">
-    </div>
-    <button type="submit" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5] transition">Create Item</button>
-  </form>
+<!-- Create New Item -->
+<div class="container-panel space-y-4">
+  <h2 class="text-xl font-bold">Create New Item</h2>
+  <input type="text" id="item-name" placeholder="Item Name" class="w-full p-2 rounded-md focus:outline-none">
+  <input type="text" id="item-parents" placeholder="Parents (comma separated, e.g. Wood 1x, Bone 1x)" class="w-full p-2 rounded-md focus:outline-none">
+  <input type="number" id="item-buildtime" placeholder="Time to build (seconds)" class="w-full p-2 rounded-md focus:outline-none">
+  <input type="text" id="item-group" placeholder="Group Name (Tools, Weapons, etc.)" class="w-full p-2 rounded-md focus:outline-none">
+  <button id="create-item" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5] transition">Create Item</button>
 </div>
 
-<!-- Search and Filter -->
-<div class="container-panel flex justify-between items-center">
-  <input type="text" id="search-items" placeholder="Search items..." class="p-2 rounded-md bg-[#2f3136] focus:outline-none focus:ring-1 focus:ring-[#7289da] w-1/2">
-  <select id="filter-group" class="p-2 rounded-md bg-[#2f3136] focus:outline-none focus:ring-1 focus:ring-[#7289da]">
-    <option value="">All Groups</option>
-  </select>
-</div>
-
-<!-- Existing Items List -->
+<!-- Existing Items -->
 <div class="container-panel">
-  <h2 class="text-xl font-bold mb-4">Items</h2>
+  <h2 class="text-xl font-bold mb-4">Existing Items</h2>
   <div id="item-list" class="space-y-2 max-h-80 overflow-y-auto">
     <p class="text-center text-gray-500">No items yet.</p>
   </div>
