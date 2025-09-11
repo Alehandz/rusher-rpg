@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameMaster Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #2c2f33;
+            color: #dcdcdc;
+        }
+        .container-panel {
+            background-color: #40444b;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .gm-tab-content {
+            display: none;
+        }
+        .gm-tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-[#2c2f33] min-h-screen flex flex-col items-center">
+    <div class="w-full max-w-5xl p-8 space-y-8">
+        <div class="container-panel p-6 text-center">
+            <h1 class="text-3xl font-bold text-[#7289da]">GameMaster Panel</h1>
+            <p class="text-sm text-gray-400 mt-2">Manage the world of your RPG.</p>
+        </div>
+
+        <!-- GM Navigation Buttons -->
+        <div class="flex space-x-4 justify-center">
+            <button data-gm-view="manage-items" class="gm-tab-button bg-[#7289da] text-white font-bold py-2 px-6 rounded-md hover:bg-[#6273c5] transition duration-200">
+                Manage Items
+            </button>
+            <button data-gm-view="manage-players" class="gm-tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+                Manage Players
+            </button>
+            <button data-gm-view="manage-jobs" class="gm-tab-button bg-[#36393f] text-[#dcdcdc] font-bold py-2 px-6 rounded-md hover:bg-[#4a4d53] transition duration-200">
+                Manage Jobs
+            </button>
+        </div>
+
+        <!-- Main GM Content Area -->
+        <div class="w-full space-y-6">
+
+            <!-- Manage Items View -->
+            <div id="manage-items-view" class="gm-tab-content active container-panel p-6">
+                <h2 class="text-xl font-bold mb-4">Manage Items and Item Groups</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Add/Remove Item Form -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold">Add New Item</h3>
+                        <input type="text" placeholder="Item Name" id="new-item-name" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                        <input type="text" placeholder="Category (e.g., Resources, Tools)" id="new-item-category" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                        <input type="number" placeholder="Default Value ($)" step="0.01" id="new-item-value" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                        <button id="add-item-btn" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5]">
+                            Add Item
+                        </button>
+                    </div>
+
+                    <!-- Item List -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold">Existing Items</h3>
+                        <div id="item-list" class="space-y-2 max-h-80 overflow-y-auto">
+                            <!-- Items will be dynamically listed here -->
+                            <div class="p-3 bg-[#36393f] rounded-md flex justify-between items-center">
+                                <span>Example Item</span>
+                                <button class="text-red-400 hover:text-red-500">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Players View -->
+            <div id="manage-players-view" class="gm-tab-content container-panel p-6">
+                <h2 class="text-xl font-bold mb-4">Manage Players</h2>
+                <input type="text" id="player-search" placeholder="Search for player by User ID..." class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a] mb-4">
+                
+                <div class="bg-[#36393f] p-4 rounded-md">
+                    <h3 class="text-lg font-semibold mb-2">Player Details</h3>
+                    <div id="player-details">
+                        <p class="text-gray-400">Search for a player to see their details here.</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#36393f] p-4 rounded-md mt-4">
+                    <h3 class="text-lg font-semibold mb-2">Modify Player</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" placeholder="New Balance" class="p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                        <button class="bg-[#7289da] text-white py-2 px-4 rounded-md hover:bg-[#6273c5]">Update Balance</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Jobs View -->
+            <div id="manage-jobs-view" class="gm-tab-content container-panel p-6">
+                <h2 class="text-xl font-bold mb-4">Manage Job Offers</h2>
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold">Create New Job Offer</h3>
+                    <input type="text" placeholder="Job Title" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                    <textarea placeholder="Job Description" rows="4" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]"></textarea>
+                    <input type="number" placeholder="Reward Amount ($)" step="0.01" class="w-full p-2 bg-[#2f3136] rounded-md border border-[#52555a]">
+                    <button class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5]">
+                        Publish Job
+                    </button>
+                </div>
+                
+                <div class="mt-8 space-y-4">
+                    <h3 class="text-lg font-semibold">Current Job Offers</h3>
+                    <div id="job-list" class="space-y-2 max-h-80 overflow-y-auto">
+                        <!-- Jobs will be dynamically listed here -->
+                        <div class="p-3 bg-[#36393f] rounded-md flex justify-between items-center">
+                            <span>Gather 100 Wood Logs</span>
+                            <button class="text-red-400 hover:text-red-500">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase global variables
+        let app;
+        let db;
+        let auth;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+        // DOM References
+        const gmTabButtons = document.querySelectorAll('.gm-tab-button');
+        const gmTabContents = document.querySelectorAll('.gm-tab-content');
+
+        // --- UI Functions ---
+        function showGMView(viewName) {
+            gmTabContents.forEach(view => view.classList.remove('active'));
+            document.getElementById(`${viewName}-view`).classList.add('active');
+
+            gmTabButtons.forEach(button => {
+                button.classList.remove('bg-[#7289da]', 'text-white');
+                button.classList.add('bg-[#36393f]', 'text-[#dcdcdc]');
+                if (button.dataset.gmView === viewName) {
+                    button.classList.add('bg-[#7289da]', 'text-white');
+                    button.classList.remove('bg-[#36393f]', 'text-[#dcdcdc]');
+                }
+            });
+        }
+        
+        // --- Event Listeners ---
+        gmTabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                showGMView(button.dataset.gmView);
+            });
+        });
+
+        // --- App Initialization ---
+        window.onload = function() {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            // IMPORTANT: Paste your actual User ID here for testing purposes.
+            const gameMasterId = 'AN2gz1aJecYOdoy6qiYiAST94JP2';
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user && user.uid === gameMasterId) {
+                    // Only a GameMaster can see this page
+                    console.log('GameMaster Logged in. Welcome.');
+                    setupFirestoreListeners();
+                    showGMView('manage-items'); // Show the default view
+                } else {
+                    // If not a GameMaster, redirect to the main page
+                    window.location.href = 'index.html';
+                }
+            });
+        };
+    </script>
+</body>
+</html>
