@@ -399,7 +399,7 @@
 
         // --- UI Rendering Functions ---
         function updateUI() {
-            userNameSpan.textContent = auth.currentUser.displayName || auth.currentUser.uid.slice(0, 8);
+            userNameSpan.textContent = auth.currentUser.displayName || `Player_${userId.slice(0, 4)}`;
             playerBalanceSpan.textContent = `$${playerBalance.toFixed(2)}`;
             renderInventory();
         }
