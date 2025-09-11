@@ -8,35 +8,13 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
 </head>
 <body class="bg-[#2c2f33] text-[#dcdcdc] font-sans p-6">
+
 <h1 class="text-2xl font-bold mb-4">Item Manager</h1>
 
-<form id="create-item-form" class="space-y-4 bg-[#40444b] p-4 rounded-md">
-<div>
-<label class="block mb-1">Item Name</label>
-<input type="text" id="item-name" class="w-full p-2 rounded-md bg-[#2f3136]">
+<div id="manager-content">
+    <p>Item Manager initialized. Ready to add features.</p>
 </div>
-
-<div>
-<label class="block mb-1">Parent Items (comma-separated: itemId x quantity)</label>
-<input type="text" id="item-parents" class="w-full p-2 rounded-md bg-[#2f3136]" placeholder="wood 1, bone 1">
-</div>
-
-<div>
-<label class="block mb-1">Build Time (seconds)</label>
-<input type="number" id="item-build-time" class="w-full p-2 rounded-md bg-[#2f3136]">
-</div>
-
-<div>
-<label class="block mb-1">Group Name</label>
-<input type="text" id="item-group" class="w-full p-2 rounded-md bg-[#2f3136]">
-</div>
-
-<button type="submit" class="bg-[#7289da] text-white py-2 px-4 rounded-md hover:bg-[#6273c5]">Create Item</button>
-</form>
-
-<div id="item-list" class="mt-6"></div>
 
 <script type="module" src="./item_manager.js"></script>
 </body>
 </html>
-
