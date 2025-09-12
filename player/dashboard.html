@@ -3,50 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Demand Rusher - Dashboard</title>
+  <title>Dashboard - Demand Rusher</title>
   <script type="module" src="../shared/firebase_config.js"></script>
   <link href="https://cdn.tailwindcss.com" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex flex-col">
 
-  <!-- HEADER -->
-  <header class="p-4 bg-gray-800 flex justify-between items-center">
-    <h1 class="text-2xl font-bold">DASHBOARD</h1>
-    <button id="logout-btn" class="bg-red-600 hover:bg-red-500 p-2 rounded">Logout</button>
-  </header>
+  <!-- Navbar (loaded dynamically) -->
+  <div id="navbar"></div>
 
-  <div class="flex flex-1 flex-col md:flex-row">
+  <!-- Dashboard Content -->
+  <main id="dashboard" class="flex-grow p-6">
+    <h1 class="text-2xl font-bold mb-6">Player Dashboard</h1>
 
-    <!-- LEFT PANEL: CHARACTER INFO -->
-    <aside class="p-4 bg-gray-800 m-4 rounded-lg w-full md:w-1/4 flex flex-col gap-2">
-      <p>Name: <span id="character-name">Loading...</span></p>
-      <p>Level: <span id="character-level">1</span></p>
-      <p>Money: $<span id="character-money">0</span></p>
+    <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
+      <p class="mb-2">Welcome back, <span id="user-email">Loading...</span>!</p>
+      <p class="mb-2">This is your central hub. From here, you can navigate to:</p>
+      <ul class="list-disc list-inside text-left mt-4">
+        <li>Character Profile</li>
+        <li>Market</li>
+        <li>Inventory</li>
+        <li>Job Offers</li>
+        <li>... and more features coming soon!</li>
+      </ul>
+    </div>
+  </main>
 
-      <div class="w-full bg-gray-700 rounded h-4 mt-2">
-        <div id="health-bar" class="bg-red-600 h-4 rounded w-3/4"></div>
-      </div>
-      <div class="w-full bg-gray-700 rounded h-4 mt-2">
-        <div id="hunger-bar" class="bg-yellow-400 h-4 rounded w-1/2"></div>
-      </div>
-
-      <!-- Navigation Buttons -->
-      <nav class="mt-6 flex flex-col gap-3">
-        <button data-section="character" class="bg-blue-600 p-2 rounded hover:bg-blue-500">Character</button>
-        <button data-section="market" class="bg-green-600 p-2 rounded hover:bg-green-500">Market</button>
-        <button data-section="job" class="bg-purple-600 p-2 rounded hover:bg-purple-500">Job Offer</button>
-        <button data-section="inventory" class="bg-orange-600 p-2 rounded hover:bg-orange-500">Inventory</button>
-      </nav>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main id="main-content" class="flex-1 p-6 m-4 bg-gray-800 rounded-lg">
-      <h2 class="text-xl font-bold mb-4">Welcome!</h2>
-      <p>Select a feature from the left menu to begin.</p>
-    </main>
-  </div>
-
-  <!-- PLAYER SCRIPT -->
-  <script type="module" src="player.js"></script>
+  <script type="module" src="./dashboard.js"></script>
+  <script>
+    // Load navbar dynamically
+    fetch("../shared/navbar.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("navbar").innerHTML = data;
+      });
+  </script>
 </body>
 </html>
