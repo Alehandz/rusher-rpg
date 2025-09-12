@@ -18,7 +18,7 @@ form.addEventListener('submit', async (e) => {
     // Redireciona para a página principal do jogo
     window.location.href = "player/index.html"; 
   } catch (error) {
-    console.error("Erro ao logar:", error);
+    console.error("Erro ao logar:", error); 
     errorMessage.textContent = error.message;
   }
 });
