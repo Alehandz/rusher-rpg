@@ -1,209 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GameMaster - Item Manager</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; background-color: #1e2124; color: #dcdcdc; }
-    .container-panel { background-color: #2c2f33; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .small { font-size: 0.85rem; }
-    .muted { color: #a0a0a0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demand Rusher - Item Manager</title>
+<script type="module" src="../shared/firebase_config.js"></script>
+<link href="https://cdn.tailwindcss.com" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #2c2f33; color: #dcdcdc; }
+  .container-panel { background-color: #40444b; border-radius: 8px; padding: 16px; }
+  .hover-row:hover { background-color: #4a4d53; transition: 0.2s; }
+</style>
 </head>
-<body class="min-h-screen p-6">
+<body class="min-h-screen flex flex-col items-center p-4">
 
-  <div class="max-w-4xl mx-auto container-panel p-6 space-y-6">
-    <h1 class="text-2xl font-bold text-center text-[#7289da]">GameMaster - Item Manager</h1>
+<!-- Navbar Placeholder -->
+<div id="navbar"></div>
 
-    <!-- FORM -->
+<main class="w-full max-w-6xl mt-6 space-y-6">
+
+  <h1 class="text-3xl font-bold text-[#7289da]">Gamemaster - Item Manager</h1>
+
+  <!-- Add / Edit Item Form -->
+  <div class="container-panel">
+    <h2 class="text-xl font-semibold mb-4">Add / Edit Item</h2>
     <form id="item-form" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="text" id="item-name" placeholder="Item Name" class="p-2 rounded bg-gray-700 border border-gray-600" required>
+        <input type="text" id="item-group" placeholder="Group" class="p-2 rounded bg-gray-700 border border-gray-600" required>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="number" id="item-weight" placeholder="Weight" class="p-2 rounded bg-gray-700 border border-gray-600" required>
+        <input type="number" id="crafting-time" placeholder="Crafting Time (seconds)" class="p-2 rounded bg-gray-700 border border-gray-600">
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <select id="required-tool" class="p-2 rounded bg-gray-700 border border-gray-600">
+          <option value="">Select Required Tool</option>
+        </select>
+      </div>
+      <!-- Crafting parents -->
       <div>
-        <label class="small muted">Item Name</label>
-        <input id="item-name" type="text" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" required>
+        <label class="block mb-1">Parents / Ingredients (select + quantity)</label>
+        <div id="parents-container" class="space-y-2"></div>
+        <button type="button" id="add-parent-btn" class="mt-2 bg-blue-600 p-2 rounded hover:bg-blue-500">Add Parent</button>
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div>
-          <label class="small muted">Weight</label>
-          <input id="item-weight" type="number" step="0.01" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" required>
-        </div>
-        <div>
-          <label class="small muted">Quantity</label>
-          <input id="item-quantity" type="number" step="1" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" required>
-        </div>
-        <div>
-          <label class="small muted">Group</label>
-          <input id="item-group" type="text" placeholder="e.g. Food > Baked" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]">
-        </div>
-      </div>
-
-      <div>
-        <label class="small muted">Recipe (Parents)</label>
-        <div id="recipe-list" class="space-y-2"></div>
-        <button type="button" id="add-parent" class="mt-2 bg-[#7289da] px-3 py-1 rounded">+ Add Ingredient</button>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div>
-          <label class="small muted">Output Amount (per craft)</label>
-          <input id="output-amount" type="number" step="1" min="1" value="1"
-            class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]">
-        </div>
-
-        <div>
-          <label class="small muted">Crafting Time (seconds)</label>
-          <input id="craft-time" type="number" step="1" min="1" value="30"
-            class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]">
-        </div>
-
-        <div>
-          <label class="small muted">Required Tool</label>
-          <select id="tool-select" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]"></select>
-        </div>
-      </div>
-
-      <button type="submit" class="w-full bg-green-600 py-2 rounded hover:bg-green-500">Save Item</button>
+      <button type="submit" class="bg-green-600 p-2 rounded hover:bg-green-500 w-full mt-2">Save Item</button>
     </form>
-
-    <div id="status" class="text-center text-sm mt-2"></div>
+    <p id="form-error" class="text-red-500 mt-2"></p>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+  <!-- Item List -->
+  <div class="container-panel">
+    <h2 class="text-xl font-semibold mb-4">Existing Items</h2>
+    <div class="flex flex-col md:flex-row md:space-x-4 mb-4">
+      <input type="text" id="search-name" placeholder="Search by Name" class="p-2 rounded bg-gray-700 border border-gray-600 flex-1">
+      <select id="filter-group" class="p-2 rounded bg-gray-700 border border-gray-600">
+        <option value="">All Groups</option>
+      </select>
+    </div>
+    <div id="items-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
+  </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
-      authDomain: "demand-rusher.firebaseapp.com",
-      projectId: "demand-rusher",
-      storageBucket: "demand-rusher.firebasestorage.app",
-      messagingSenderId: "491613307536",
-      appId: "1:491613307536:web:52f3339b4f12ef7418ce15",
-      measurementId: "G-VY4JSL70QV"
-    };
+</main>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+<script type="module">
+import { auth, db } from "../shared/firebase_config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-    const form = document.getElementById("item-form");
-    const statusEl = document.getElementById("status");
-    const recipeList = document.getElementById("recipe-list");
-    const addParentBtn = document.getElementById("add-parent");
-    const toolSelectEl = document.getElementById("tool-select");
+const itemForm = document.getElementById('item-form');
+const itemName = document.getElementById('item-name');
+const itemGroup = document.getElementById('item-group');
+const itemWeight = document.getElementById('item-weight');
+const craftingTime = document.getElementById('crafting-time');
+const requiredTool = document.getElementById('required-tool');
+const parentsContainer = document.getElementById('parents-container');
+const addParentBtn = document.getElementById('add-parent-btn');
+const formError = document.getElementById('form-error');
+const itemsList = document.getElementById('items-list');
+const searchName = document.getElementById('search-name');
+const filterGroup = document.getElementById('filter-group');
 
-    let parentOptions = [];
+let editItemId = null;
+let allItems = [];
 
-    async function loadExistingItems() {
-      const snap = await getDocs(collection(db, "artifacts/demandrusher_1.0.0/items"));
-      parentOptions = [];
-      recipeList.innerHTML = "";
-      toolSelectEl.innerHTML = '<option value="">— None —</option>';
-      snap.forEach(doc => {
-        parentOptions.push({ value: doc.id, itemId: doc.data().itemId, name: doc.data().name });
-      });
-      parentOptions.forEach(opt => {
-        const optionEl = document.createElement("option");
-        optionEl.value = opt.value;
-        optionEl.textContent = `${opt.itemId} - ${opt.name}`;
-        toolSelectEl.appendChild(optionEl);
-      });
+// Helper to create parent input row
+function createParentRow(parentData = {}) {
+  const div = document.createElement('div');
+  div.className = "flex space-x-2 items-center";
+  div.innerHTML = `
+    <select class="parent-item p-2 rounded bg-gray-700 border border-gray-600 flex-1"></select>
+    <input type="number" class="parent-quantity p-2 rounded bg-gray-700 border border-gray-600 w-24" placeholder="Qty" value="${parentData.qty || 1}">
+    <input type="number" class="parent-byproduct p-2 rounded bg-gray-700 border border-gray-600 w-24" placeholder="Byproduct" value="${parentData.byproduct || 1}">
+    <button type="button" class="remove-parent-btn bg-red-600 px-2 rounded hover:bg-red-500">X</button>
+  `;
+  const removeBtn = div.querySelector('.remove-parent-btn');
+  removeBtn.addEventListener('click', ()=> div.remove());
+  parentsContainer.appendChild(div);
+  populateParentDropdown(div.querySelector('.parent-item'));
+  if(parentData.itemId) div.querySelector('.parent-item').value = parentData.itemId;
+}
+
+// Populate parent dropdown
+async function populateParentDropdown(selectEl) {
+  const itemsSnap = await getDocs(collection(db,'artifacts/demandrusher_1.0.0/items'));
+  selectEl.innerHTML = '<option value="">Select Parent</option>';
+  itemsSnap.forEach(doc => {
+    const data = doc.data();
+    const option = document.createElement('option');
+    option.value = doc.id;
+    option.textContent = data.name;
+    selectEl.appendChild(option);
+  });
+}
+
+// Populate required tool dropdown
+async function populateToolDropdown() {
+  const itemsSnap = await getDocs(collection(db,'artifacts/demandrusher_1.0.0/items'));
+  requiredTool.innerHTML = '<option value="">Select Required Tool</option>';
+  itemsSnap.forEach(doc => {
+    const data = doc.data();
+    if(data.group === 'Tools'){
+      const option = document.createElement('option');
+      option.value = doc.id;
+      option.textContent = data.name;
+      requiredTool.appendChild(option);
     }
+  });
+}
 
-    function addRecipeInput() {
-      const wrapper = document.createElement("div");
-      wrapper.className = "flex gap-2 items-center";
+// Fetch all items
+async function fetchItems() {
+  const itemsSnap = await getDocs(collection(db,'artifacts/demandrusher_1.0.0/items'));
+  allItems = [];
+  filterGroup.innerHTML = '<option value="">All Groups</option>';
+  const groupsSet = new Set();
+  itemsSnap.forEach(doc => {
+    const data = doc.data();
+    allItems.push({id: doc.id, ...data});
+    groupsSet.add(data.group);
+  });
+  groupsSet.forEach(g => {
+    const option = document.createElement('option');
+    option.value = g;
+    option.textContent = g;
+    filterGroup.appendChild(option);
+  });
+  renderItems();
+}
 
-      const select = document.createElement("select");
-      select.className = "flex-1 p-2 rounded bg-[#1b1d20] border border-[#2e3338]";
-      parentOptions.forEach(opt => {
-        const option = document.createElement("option");
-        option.value = opt.value;
-        option.textContent = `${opt.itemId} - ${opt.name}`;
-        select.appendChild(option);
-      });
+// Render items
+function renderItems() {
+  const nameFilter = searchName.value.toLowerCase();
+  const groupFilter = filterGroup.value;
+  itemsList.innerHTML = '';
+  const filtered = allItems.filter(i=>{
+    return (i.name.toLowerCase().includes(nameFilter)) &&
+           (groupFilter === '' || i.group === groupFilter);
+  });
+  filtered.forEach(item=>{
+    const div = document.createElement('div');
+    div.className = 'hover-row flex justify-between p-2 bg-gray-700 rounded';
+    div.innerHTML = `
+      <span>${item.name} (${item.group})</span>
+      <div class="space-x-2">
+        <button class="edit-btn bg-blue-600 px-2 rounded hover:bg-blue-500">Edit</button>
+        <button class="delete-btn bg-red-600 px-2 rounded hover:bg-red-500">Delete</button>
+      </div>
+    `;
+    div.querySelector('.edit-btn').addEventListener('click', ()=>loadItemForEdit(item));
+    div.querySelector('.delete-btn').addEventListener('click', ()=>deleteItem(item.id));
+    itemsList.appendChild(div);
+  });
+}
 
-      const qty = document.createElement("input");
-      qty.type = "number";
-      qty.step = "0.01";
-      qty.min = "0.01";
-      qty.placeholder = "Qty";
-      qty.className = "w-20 p-2 rounded bg-[#1b1d20] border border-[#2e3338]";
+// Load item data for edit
+function loadItemForEdit(item) {
+  editItemId = item.id;
+  itemName.value = item.name;
+  itemGroup.value = item.group;
+  itemWeight.value = item.weight;
+  craftingTime.value = item.craftingTime || '';
+  requiredTool.value = item.tool || '';
+  parentsContainer.innerHTML = '';
+  if(item.parents){
+    item.parents.forEach(p=>createParentRow(p));
+  }
+}
 
-      const removeBtn = document.createElement("button");
-      removeBtn.type = "button";
-      removeBtn.textContent = "×";
-      removeBtn.className = "text-red-500 font-bold";
-      removeBtn.onclick = () => wrapper.remove();
+// Delete item
+async function deleteItem(id) {
+  if(confirm('Are you sure you want to delete this item?')){
+    await deleteDoc(doc(db,'artifacts/demandrusher_1.0.0/items',id));
+    fetchItems();
+  }
+}
 
-      wrapper.appendChild(select);
-      wrapper.appendChild(qty);
-      wrapper.appendChild(removeBtn);
+// Submit form
+itemForm.addEventListener('submit', async e=>{
+  e.preventDefault();
+  formError.textContent = '';
+  if(!itemName.value || !itemGroup.value || !itemWeight.value) { formError.textContent='Fill all required fields'; return; }
+  const parents = [];
+  parentsContainer.querySelectorAll('.flex').forEach(row=>{
+    const itemId = row.querySelector('.parent-item').value;
+    const qty = parseFloat(row.querySelector('.parent-quantity').value);
+    const byproduct = parseFloat(row.querySelector('.parent-byproduct').value);
+    if(itemId) parents.push({itemId, qty, byproduct});
+  });
+  const data = {
+    name: itemName.value,
+    group: itemGroup.value,
+    weight: parseFloat(itemWeight.value),
+    craftingTime: parseFloat(craftingTime.value)||0,
+    tool: requiredTool.value || '',
+    parents
+  };
+  if(editItemId){
+    await updateDoc(doc(db,'artifacts/demandrusher_1.0.0/items',editItemId),data);
+    editItemId=null;
+  }else{
+    await addDoc(collection(db,'artifacts/demandrusher_1.0.0/items'),data);
+  }
+  itemForm.reset();
+  parentsContainer.innerHTML='';
+  fetchItems();
+});
 
-      recipeList.appendChild(wrapper);
-    }
+// Add parent button
+addParentBtn.addEventListener('click', ()=>createParentRow());
 
-    addParentBtn.addEventListener("click", addRecipeInput);
+// Filters
+searchName.addEventListener('input', renderItems);
+filterGroup.addEventListener('change', renderItems);
 
-    async function getNextItemId() {
-      const q = query(collection(db, "artifacts/demandrusher_1.0.0/items"), orderBy("itemId", "desc"), limit(1));
-      const snap = await getDocs(q);
-      if (snap.empty) return "00001";
-      const lastId = snap.docs[0].data().itemId;
-      const nextId = String(parseInt(lastId) + 1).padStart(5, "0");
-      return nextId;
-    }
+// Populate tool dropdown & fetch items on load
+populateToolDropdown();
+fetchItems();
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      statusEl.textContent = "Saving...";
-      try {
-        const name = document.getElementById("item-name").value;
-        const weight = parseFloat(document.getElementById("item-weight").value);
-        const quantity = parseInt(document.getElementById("item-quantity").value);
-        const group = document.getElementById("item-group").value;
-        const output = parseInt(document.getElementById("output-amount").value) || 1;
-        const craftTime = parseInt(document.getElementById("craft-time").value) || 0;
-        const toolDocId = toolSelectEl.value || null;
-        const toolData = toolDocId ? parentOptions.find(o => o.value === toolDocId) : null;
+// Auth check
+onAuthStateChanged(auth,user=>{
+  if(!user) window.location.href='../login.html';
+});
+</script>
 
-        const recipeInputs = Array.from(recipeList.children).map(child => {
-          const sel = child.querySelector("select");
-          const qty = parseFloat(child.querySelector("input").value);
-          const selected = parentOptions.find(o => o.value === sel.value);
-          return { itemId: selected.itemId, docId: sel.value, amount: qty };
-        });
+<script>
+  // Load navbar
+  fetch("../shared/navbar.html")
+    .then(res=>res.text())
+    .then(data=>document.getElementById("navbar").innerHTML=data);
+</script>
 
-        const newItemId = await getNextItemId();
-
-        await addDoc(collection(db, "artifacts/demandrusher_1.0.0/items"), {
-          itemId: newItemId,
-          name,
-          weight,
-          quantity,
-          group: group || null,
-          recipe: {
-            inputs: recipeInputs,
-            output: { amount: output },
-            time: craftTime,
-            tool: toolData ? { itemId: toolData.itemId, docId: toolData.value, name: toolData.name } : null
-          },
-          createdAt: serverTimestamp()
-        });
-
-        statusEl.textContent = `✅ Item "${name}" saved as ID ${newItemId}`;
-        form.reset();
-        recipeList.innerHTML = "";
-        loadExistingItems();
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = "❌ Error saving item.";
-      }
-    });
-
-    loadExistingItems();
-  </script>
 </body>
 </html>
