@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Market - Demand Rusher</title>
-  <script type="module" src="./shared/firebase_config.js"></script>
-  <script type="module" src="./player/player.js"></script>
+  <script type="module" src="../shared/firebase_config.js"></script>
   <link href="https://cdn.tailwindcss.com" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -13,15 +12,16 @@
   <div id="navbar"></div>
 
   <main class="p-6">
-    <h1 class="text-2xl font-bold">Market</h1>
-    <p>Marketplace features will go here.</p>
+    <h1 class="text-2xl font-bold mb-4">Market</h1>
+    <p>Marketplace for buying and selling items.</p>
   </main>
 
   <script>
-    fetch("./shared/navbar.html")
+    fetch("../shared/navbar.html")
       .then(res => res.text())
       .then(data => {
         document.getElementById("navbar").innerHTML = data;
+        import("../shared/auth_check.js");
       });
   </script>
 </body>
