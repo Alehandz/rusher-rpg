@@ -20,6 +20,26 @@
 
     <p id="error-message" class="text-red-500 mt-2"></p>
   </div>
+<div id="create-account-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden">
+  <div class="bg-gray-800 p-6 rounded-lg w-full max-w-sm">
+    <h2 class="text-xl font-bold mb-4 text-center">Create Account</h2>
+    <form id="create-account-form" class="flex flex-col gap-3">
+      <input type="text" id="new-name" placeholder="Character Name" class="p-2 rounded bg-gray-700 border border-gray-600" required>
+      <select id="new-gender" class="p-2 rounded bg-gray-700 border border-gray-600" required>
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="email" id="new-email" placeholder="Email" class="p-2 rounded bg-gray-700 border border-gray-600" required>
+      <input type="password" id="new-password" placeholder="Password" class="p-2 rounded bg-gray-700 border border-gray-600" required>
+      <input type="password" id="confirm-password" placeholder="Confirm Password" class="p-2 rounded bg-gray-700 border border-gray-600" required>
+      <button type="submit" class="bg-green-600 p-2 rounded hover:bg-green-500">Create Account</button>
+      <button type="button" id="close-modal" class="bg-red-600 p-2 rounded hover:bg-red-500 mt-2">Cancel</button>
+    </form>
+    <p id="create-error-message" class="text-red-500 mt-2"></p>
+  </div>
+</div>
 
 </body>
 </html>
