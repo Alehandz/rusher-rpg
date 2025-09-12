@@ -1,26 +1,19 @@
-import { auth } from '../shared/firebase_config.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { auth } from './shared/firebase_config.js';
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-const userEmailSpan = document.getElementById('user-email');
-const logoutBtn = document.getElementById('logout-btn');
+const loginForm = document.getElementById('login-form');
+const errorMessage = document.getElementById('error-message');
 
-// Checa se o usuário está logado
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    console.log("Usuário logado:", user.email);
-    userEmailSpan.textContent = user.email;
-  } else {
-    console.log("Nenhum usuário logado, redirecionando...");
-    window.location.href = "../login.html";
-  }
-});
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-// Logout
-logoutBtn.addEventListener('click', async () => {
   try {
-    await signOut(auth);
-    window.location.href = "../login.html";
+    await signInWithEmailAndPassword(auth, email, password);
+    window.location.href = "./player/dashboard.html";
   } catch (error) {
-    console.error("Erro ao deslogar:", error);
+    console.error("Login failed:", error);
+    errorMessage.textContent = "Email ou senha incorretos.";
   }
 });
