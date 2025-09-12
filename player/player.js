@@ -3,6 +3,7 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
+
   const characterName = document.getElementById('character-name');
   const characterLevel = document.getElementById('character-level');
   const characterMoney = document.getElementById('character-money');
@@ -10,23 +11,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const hungerBar = document.getElementById('hunger-bar');
   const logoutBtn = document.getElementById('logout-btn');
 
+  // Check if user is logged in
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      // Fetch user data from Firestore
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
+      console.log("User logged in:", user.email);
 
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        characterName.textContent = data.name || "Unknown";
-        characterLevel.textContent = data.level || 1;
-        characterMoney.textContent = data.money || 0;
-        healthBar.style.width = (data.health || 100) + "%";
-        hungerBar.style.width = (data.hunger || 100) + "%";
-      } else {
-        console.log("No user data found, please create a new account!");
+      // Fetch character data from Firestore
+      try {
+        const docRef = doc(db, "players", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          characterName.textContent = data.name || "Unknown";
+          characterLevel.textContent = data.level || 1;
+          characterMoney.textContent = data.money || 0;
+          healthBar.style.width = `${data.health || 75}%`;
+          hungerBar.style.width = `${data.hunger || 50}%`;
+        } else {
+          console.log("No character data found, using defaults");
+        }
+      } catch (error) {
+        console.error("Error fetching character data:", error);
       }
+
     } else {
+      console.log("No user logged in, redirecting...");
       window.location.href = "../login.html";
     }
   });
@@ -40,4 +50,5 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error("Error logging out:", error);
     }
   });
+
 });
