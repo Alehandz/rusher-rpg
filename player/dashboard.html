@@ -4,37 +4,60 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Demand Rusher - Dashboard</title>
-  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
   <script type="module" src="../shared/firebase_config.js"></script>
-  <script type="module" src="player.js"></script>
+  <script type="module" src="../player/player.js"></script>
+  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen gap-8">
+<body class="bg-gray-900 text-white h-screen flex flex-col">
 
-  <h1 class="text-3xl font-bold">DASHBOARD</h1>
-  <p id="user-email" class="text-xl"></p>
-  <p class="text-lg">Welcome to Demand Rusher!</p>
+  <!-- Header -->
+  <header class="bg-gray-800 p-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Dashboard</h1>
+    <div class="flex items-center gap-4">
+      <span id="user-email" class="font-medium">email@example.com</span>
+      <button id="logout-btn" class="bg-red-600 px-3 py-1 rounded hover:bg-red-500">Logout</button>
+    </div>
+  </header>
 
-  <div class="grid grid-cols-2 gap-6 mt-6">
-    <button id="btn-character" class="bg-orange-600 p-4 rounded hover:bg-orange-500">Character</button>
-    <button id="btn-market" class="bg-gray-700 p-4 rounded cursor-not-allowed opacity-50">Market</button>
-    <button id="btn-job" class="bg-gray-700 p-4 rounded cursor-not-allowed opacity-50">Job Offer</button>
-    <button id="btn-inventory" class="bg-gray-700 p-4 rounded cursor-not-allowed opacity-50">Inventory</button>
-  </div>
+  <!-- Main content -->
+  <main class="flex flex-1 p-6 gap-6 relative">
 
-  <button id="logout-btn" class="bg-red-600 p-3 rounded hover:bg-red-500 mt-10">Logout</button>
+    <!-- Sidebar: Character Info -->
+    <aside class="w-64 bg-gray-800 p-4 rounded-lg flex flex-col gap-3">
+      <h2 class="text-lg font-bold mb-2">Character Info</h2>
+      <p>Name: <span id="character-name">Loading...</span></p>
+      <p>Level: <span id="character-level">1</span></p>
+      <p>Money: $<span id="character-money">0</span></p>
 
-  <script type="module">
-    // Buttons
-    const btnCharacter = document.getElementById('btn-character');
-    const btnMarket = document.getElementById('btn-market');
-    const btnJob = document.getElementById('btn-job');
-    const btnInventory = document.getElementById('btn-inventory');
+      <!-- Health Bar -->
+      <div>
+        <p>Health</p>
+        <div class="w-full bg-gray-700 rounded h-4">
+          <div id="health-bar" class="bg-red-600 h-4 rounded" style="width: 100%"></div>
+        </div>
+      </div>
 
-    // Redirect to Character Manager (placeholder for now)
-    btnCharacter.addEventListener('click', () => {
-      window.location.href = "player_character.html"; // We'll create this next
-    });
-  </script>
+      <!-- Hunger Bar -->
+      <div>
+        <p>Hunger</p>
+        <div class="w-full bg-gray-700 rounded h-4">
+          <div id="hunger-bar" class="bg-yellow-500 h-4 rounded" style="width: 100%"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Buttons Area -->
+    <section class="flex-1 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <button class="bg-orange-600 p-6 rounded-lg text-xl font-bold hover:bg-orange-500">Character</button>
+      <button class="bg-blue-600 p-6 rounded-lg text-xl font-bold hover:bg-blue-500">Market</button>
+      <button class="bg-green-600 p-6 rounded-lg text-xl font-bold hover:bg-green-500">Job Offer</button>
+      <button class="bg-purple-600 p-6 rounded-lg text-xl font-bold hover:bg-purple-500">Inventory</button>
+      <!-- placeholders -->
+      <div class="bg-gray-700 p-6 rounded-lg"></div>
+      <div class="bg-gray-700 p-6 rounded-lg"></div>
+    </section>
+
+  </main>
 
 </body>
 </html>
