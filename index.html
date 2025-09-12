@@ -25,7 +25,7 @@
         const result = await signInWithPopup(auth, provider);
         console.log('User logged in:', result.user);
         window.location.href = './player/index.html'; // redirect after login
-      } catch (error) {
+      } catch (error) { 
         console.error('Login failed:', error);
       }
     });
