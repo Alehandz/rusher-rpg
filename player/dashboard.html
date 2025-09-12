@@ -1,38 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Demand Rusher</title>
-  <script type="module" src="../shared/firebase_config.js"></script>
-  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demand Rusher - Dashboard</title>
+<script type="module" src="./shared/firebase_config.js"></script>
+<script type="module" src="./player/player.js"></script>
+<link href="https://cdn.tailwindcss.com" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
 
-  <!-- Navbar Placeholder -->
-  <div id="navbar"></div>
+<!-- Navbar -->
+<div id="navbar"></div>
 
-  <main class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Dashboard</h1>
-    <p>Welcome, <span id="user-email">Loading...</span>!</p>
-    <button id="logout-btn" class="bg-red-600 p-2 rounded mt-4 hover:bg-red-500">Logout</button>
+<!-- Main Dashboard -->
+<main class="flex-1 p-6">
+  <h1 class="text-4xl font-bold mb-4">DASHBOARD</h1>
+  <p id="welcome-message" class="text-xl mb-4">Welcome, Loading...</p>
 
-    <div class="mt-6 flex gap-4">
-      <button class="bg-blue-600 p-2 rounded hover:bg-blue-500">Market</button>
-      <button class="bg-blue-600 p-2 rounded hover:bg-blue-500">Inventory</button>
-      <button class="bg-blue-600 p-2 rounded hover:bg-blue-500">Character</button>
-      <button class="bg-blue-600 p-2 rounded hover:bg-blue-500">Jobs</button>
-    </div>
-  </main>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+    <button class="bg-blue-600 p-4 rounded hover:bg-blue-500">Character</button>
+    <button class="bg-green-600 p-4 rounded hover:bg-green-500">Market</button>
+    <button class="bg-orange-600 p-4 rounded hover:bg-orange-500">Job Offer</button>
+    <button class="bg-purple-600 p-4 rounded hover:bg-purple-500">Inventory</button>
+  </div>
 
-  <!-- Load Navbar & Auth Check -->
-  <script>
-    fetch("../shared/navbar.html")
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById("navbar").innerHTML = data;
-        import("../shared/auth_check.js");
-      });
-  </script>
+  <div class="mt-6">
+    <p><strong>Character Name:</strong> <span id="character-name">Loading...</span></p>
+  </div>
+
+  <button id="logout-btn" class="mt-6 bg-red-600 p-2 rounded hover:bg-red-500">Logout</button>
+</main>
+
+<script>
+  // Load Navbar
+  fetch("./shared/navbar.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("navbar").innerHTML = data;
+    });
+</script>
 </body>
 </html>
