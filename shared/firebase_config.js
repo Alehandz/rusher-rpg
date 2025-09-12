@@ -4,7 +4,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 // Sua configuração do Firebase
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
   authDomain: "demand-rusher.firebaseapp.com",
   projectId: "demand-rusher",
