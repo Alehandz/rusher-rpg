@@ -5,89 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Character - Demand Rusher</title>
   <script type="module" src="../shared/firebase_config.js"></script>
+  <script type="module" src="../player/player.js"></script>
   <link href="https://cdn.tailwindcss.com" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+<body class="bg-gray-900 text-white min-h-screen">
 
-  <!-- Navbar will be injected here -->
   <div id="navbar"></div>
 
-  <!-- Character Section -->
-  <main id="character-section" class="flex-grow p-6">
-    <h1 class="text-2xl font-bold mb-6">Character Profile</h1>
-
-    <div class="grid gap-6 md:grid-cols-2">
-      <!-- Basic Info -->
-      <div class="bg-gray-800 p-4 rounded-lg shadow">
-        <h2 class="text-xl font-semibold mb-4">Basic Info</h2>
-        <p><strong>Name:</strong> <span id="character-name">Loading...</span></p>
-        <p><strong>Level:</strong> <span id="character-level">0</span></p>
-        <p><strong>Money:</strong> $<span id="character-money">0</span></p>
-      </div>
-
-      <!-- Status Bars -->
-      <div class="bg-gray-800 p-4 rounded-lg shadow">
-        <h2 class="text-xl font-semibold mb-4">Status</h2>
-
-        <p>Health</p>
-        <div class="w-full bg-gray-700 rounded-full h-4 mb-2">
-          <div id="health-bar" class="bg-green-500 h-4 rounded-full" style="width: 100%"></div>
-        </div>
-
-        <p>Hunger</p>
-        <div class="w-full bg-gray-700 rounded-full h-4">
-          <div id="hunger-bar" class="bg-yellow-500 h-4 rounded-full" style="width: 100%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Proficiencies -->
-    <div class="bg-gray-800 p-4 rounded-lg shadow mt-6">
-      <h2 class="text-xl font-semibold mb-4">Proficiencies</h2>
-      <div id="proficiencies" class="space-y-4">
-        <div>
-          <p>Agriculture (Lv. <span id="agriculture-level">0</span>)</p>
-          <div class="w-full bg-gray-700 rounded-full h-4">
-            <div id="agriculture-bar" class="bg-green-400 h-4 rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
-        <div>
-          <p>Livestock (Lv. <span id="livestock-level">0</span>)</p>
-          <div class="w-full bg-gray-700 rounded-full h-4">
-            <div id="livestock-bar" class="bg-blue-400 h-4 rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
-        <div>
-          <p>Driver (Lv. <span id="driver-level">0</span>)</p>
-          <div class="w-full bg-gray-700 rounded-full h-4">
-            <div id="driver-bar" class="bg-purple-400 h-4 rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
-        <div>
-          <p>Cook (Lv. <span id="cook-level">0</span>)</p>
-          <div class="w-full bg-gray-700 rounded-full h-4">
-            <div id="cook-bar" class="bg-pink-400 h-4 rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
-        <div>
-          <p>Lawyer (Lv. <span id="lawyer-level">0</span>)</p>
-          <div class="w-full bg-gray-700 rounded-full h-4">
-            <div id="lawyer-bar" class="bg-red-400 h-4 rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
-        <div>
-          <p>Construction (Lv. <span id="construction-level">0</span>)</p>
-          <div class="w-full bg-gray-700 rounded-full h-4">
-            <div id="construction-bar" class="bg-orange-400 h-4 rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <main class="p-6">
+    <h1 class="text-2xl font-bold">Character</h1>
+    <p>Character details and stats will go here.</p>
   </main>
 
-  <script type="module" src="./character.js"></script>
   <script>
-    // Load navbar dynamically
     fetch("../shared/navbar.html")
       .then(res => res.text())
       .then(data => {
