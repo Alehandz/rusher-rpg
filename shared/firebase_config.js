@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-// Sua configuração do Firebase
+// Firebase configuration
 export const firebaseConfig = {
   apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
   authDomain: "demand-rusher.firebaseapp.com",
@@ -14,9 +14,9 @@ export const firebaseConfig = {
   measurementId: "G-VY4JSL70QV"
 };
 
-// Inicializa Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Exporta serviços que vamos usar
+// Export services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
