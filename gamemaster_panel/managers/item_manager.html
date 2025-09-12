@@ -1,352 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GM — Item Manager | Demand Rusher</title>
-
-  <!-- Tailwind (dev CDN ok for now) -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameMaster - Item Manager</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Tom Select for searchable multi-select -->
-  <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#16171a; color:#e6eef8; }
-    .panel { background:#222428; border-radius:8px; padding:18px; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
-    .muted { color:#9aa4b2; }
-    .tag { background:#2f3740; padding:4px 8px; border-radius:999px; display:inline-block; margin-right:6px; }
-    .small { font-size:0.9rem; }
-    .table-row { display:grid; grid-template-columns: 1fr 80px 80px 40px; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+    body { font-family: 'Inter', sans-serif; background-color: #1e2124; color: #dcdcdc; }
+    .container-panel { background-color: #2c2f33; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .small { font-size: 0.85rem; }
+    .muted { color: #a0a0a0; }
   </style>
 </head>
 <body class="min-h-screen p-6">
 
-  <div class="max-w-5xl mx-auto space-y-6">
-    <header class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-[#72a6ff]">GameMaster — Item Manager</h1>
-      <div class="muted small">App: <strong>Demand Rusher</strong></div>
-    </header>
+  <div class="max-w-4xl mx-auto container-panel p-6 space-y-6">
+    <h1 class="text-2xl font-bold text-center text-[#7289da]">GameMaster - Item Manager</h1>
 
-    <section class="panel">
-      <h2 class="text-lg font-semibold mb-2">Create New Item</h2>
+    <!-- FORM -->
+    <form id="item-form" class="space-y-4">
+      <div>
+        <label class="small muted">Item Name</label>
+        <input id="item-name" type="text" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" required>
+      </div>
 
-      <form id="item-form" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div>
-            <label class="small muted">Item Name</label>
-            <input id="item-name" required class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="e.g. Bread">
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="small muted">Weight</label>
+          <input id="item-weight" type="number" step="0.01" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" required>
+        </div>
+        <div>
+          <label class="small muted">Quantity</label>
+          <input id="item-quantity" type="number" step="1" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" required>
+        </div>
+        <div>
+          <label class="small muted">Group</label>
+          <input id="item-group" type="text" placeholder="e.g. Food > Baked" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]">
+        </div>
+      </div>
 
-          <div>
-            <label class="small muted">Weight (kg)</label>
-            <input id="item-weight" type="number" step="0.01" required class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="0.30">
-          </div>
+      <div>
+        <label class="small muted">Recipe (Parents)</label>
+        <div id="recipe-list" class="space-y-2"></div>
+        <button type="button" id="add-parent" class="mt-2 bg-[#7289da] px-3 py-1 rounded">+ Add Ingredient</button>
+      </div>
 
-          <div>
-            <label class="small muted">Initial Quantity</label>
-            <input id="item-quantity" type="number" step="1" required class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="100">
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="small muted">Output Amount (per craft)</label>
+          <input id="output-amount" type="number" step="1" min="1" value="1"
+            class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]">
         </div>
 
         <div>
-          <label class="small muted">Recipe — Parent Items (search & add)</label>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-            <div>
-              <select id="parent-select" placeholder="Search existing items..." class="w-full"></select>
-            </div>
-            <div>
-              <input id="parent-amount" type="number" step="0.01" min="0" value="1" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="Amount required">
-            </div>
-            <div>
-              <button id="add-parent-btn" type="button" class="w-full bg-indigo-600 hover:bg-indigo-500 p-2 rounded">Add to Recipe</button>
-            </div>
-          </div>
-
-          <div class="mt-3">
-            <div class="small muted">Current Recipe Inputs</div>
-            <div id="recipe-rows" class="mt-2 bg-[#101214] p-3 rounded max-h-40 overflow-y:auto">
-              <!-- recipe rows appended here -->
-              <div id="no-parents" class="muted small">No parents added yet.</div>
-            </div>
-          </div>
+          <label class="small muted">Crafting Time (seconds)</label>
+          <input id="craft-time" type="number" step="1" min="1" value="30"
+            class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]">
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div>
-            <label class="small muted">Output Amount (per craft)</label>
-            <input id="output-amount" type="number" step="1" min="1" value="1" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" >
-          </div>
-
-          <div>
-            <label class="small muted">Group / Category</label>
-            <input id="item-group" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="e.g. Food > Baked">
-          </div>
-
-          <div>
-            <label class="small muted">&nbsp;</label>
-            <button id="save-item-btn" class="w-full bg-green-600 hover:bg-green-500 p-2 rounded">Save Item to DB</button>
-          </div>
+        <div>
+          <label class="small muted">Required Tool</label>
+          <select id="tool-select" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]"></select>
         </div>
-
-        <div id="form-messages" class="mt-2 small"></div>
-      </form>
-    </section>
-
-    <section class="panel">
-      <h2 class="text-lg font-semibold mb-2">Existing Items</h2>
-      <div id="items-list" class="space-y-2 max-h-96 overflow-y-auto p-1">
-        <!-- items loaded here -->
-        <div id="items-empty" class="muted small">Loading items…</div>
       </div>
-    </section>
+
+      <button type="submit" class="w-full bg-green-600 py-2 rounded hover:bg-green-500">Save Item</button>
+    </form>
+
+    <div id="status" class="text-center text-sm mt-2"></div>
   </div>
 
-  <!-- Firebase + logic (module) -->
   <script type="module">
-    // Adjust this appId if you use different application path
-    const appId = 'demandrusher_1.0.0';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-    // get shared db/auth from your shared config
-    import { db } from '../../shared/firebase_config.js';
+    const firebaseConfig = {
+      apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
+      authDomain: "demand-rusher.firebaseapp.com",
+      projectId: "demand-rusher",
+      storageBucket: "demand-rusher.firebasestorage.app",
+      messagingSenderId: "491613307536",
+      appId: "1:491613307536:web:52f3339b4f12ef7418ce15",
+      measurementId: "G-VY4JSL70QV"
+    };
 
-    // Firestore functions
-    import {
-      collection, doc, getDocs, getDoc, setDoc, addDoc, runTransaction, serverTimestamp
-    } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    // DOM
-    const parentSelectEl = document.getElementById('parent-select');
-    const parentAmountEl = document.getElementById('parent-amount');
-    const addParentBtn = document.getElementById('add-parent-btn');
-    const recipeRowsEl = document.getElementById('recipe-rows');
-    const noParentsEl = document.getElementById('no-parents');
-    const saveItemBtn = document.getElementById('save-item-btn');
-    const formMessages = document.getElementById('form-messages');
+    const form = document.getElementById("item-form");
+    const statusEl = document.getElementById("status");
+    const recipeList = document.getElementById("recipe-list");
+    const addParentBtn = document.getElementById("add-parent");
+    const toolSelectEl = document.getElementById("tool-select");
 
-    const itemNameEl = document.getElementById('item-name');
-    const itemWeightEl = document.getElementById('item-weight');
-    const itemQuantityEl = document.getElementById('item-quantity');
-    const outputAmountEl = document.getElementById('output-amount');
-    const itemGroupEl = document.getElementById('item-group');
+    let parentOptions = [];
 
-    const itemsListEl = document.getElementById('items-list');
-    const itemsEmptyEl = document.getElementById('items-empty');
-
-    let tomParent;                    // TomSelect instance
-    let parentOptions = [];           // [{value: doc.id, text: "00001 - Wheat", itemId: "00001", name:"Wheat"}]
-    let recipeInputs = [];            // [{ itemDocId, itemId, name, amount }]
-
-    /** format as 5-digit ID */
-    function formatId(n){ return String(n).padStart(5,'0'); }
-
-    /** show message */
-    function showMessage(text, kind='info'){
-      formMessages.innerHTML = `<div class="${kind==='error' ? 'text-red-400' : 'text-green-400'} small">${text}</div>`;
-      setTimeout(()=> { formMessages.innerHTML = ''; }, 5000);
-    }
-
-    /** initialize tom select */
-    function initTomSelect(){
-      // create or destroy existing instance
-      if(tomParent && tomParent.destroy) tomParent.destroy();
-
-      // create TomSelect on parent-select
-      tomParent = new TomSelect('#parent-select',{
-        options: parentOptions,
-        valueField: 'value',
-        labelField: 'text',
-        searchField: ['text','name','itemId'],
-        plugins: ['remove_button'],
-        maxItems: 1,
-        create: false,
-        placeholder: 'Search items by name or ID...'
-      });
-    }
-
-    /** load existing items to populate parent select and item list */
-    async function loadExistingItems(){
+    async function loadExistingItems() {
+      const snap = await getDocs(collection(db, "artifacts/demandrusher_1.0.0/items"));
       parentOptions = [];
-      itemsListEl.innerHTML = '';
-      itemsEmptyEl.textContent = 'Loading items...';
-
-      const itemsSnap = await getDocs(collection(db, 'artifacts', appId, 'items'));
-      const items = [];
-      itemsSnap.forEach(d => {
-        const data = d.data();
-        const option = {
-          value: d.id,
-          text: `${data.itemId || '----'} - ${data.name || '(no name)'}`
-        };
-        // keep extra metadata for recipe usage
-        option.name = data.name || '';
-        option.itemId = data.itemId || '';
-        parentOptions.push(option);
-
-        items.push({ docId: d.id, ...data });
+      recipeList.innerHTML = "";
+      toolSelectEl.innerHTML = '<option value="">— None —</option>';
+      snap.forEach(doc => {
+        parentOptions.push({ value: doc.id, itemId: doc.data().itemId, name: doc.data().name });
       });
-
-      // build items list
-      if(items.length === 0){
-        itemsEmptyEl.textContent = 'No items in database yet.';
-      } else {
-        itemsEmptyEl.remove();
-        items.forEach(it => {
-          const row = document.createElement('div');
-          row.className = 'p-2 bg-[#111218] rounded small flex justify-between items-center';
-          row.innerHTML = `
-            <div>
-              <div class="font-semibold">${it.itemId} — ${it.name}</div>
-              <div class="muted small">Qty: ${it.quantity ?? 0} · Weight: ${it.weight ?? '-'} · Created: ${it.createdAt?.toDate?.()?.toLocaleString?.() ?? '-'}</div>
-            </div>
-            <div class="text-sm muted">${(it.group || '')}</div>
-          `;
-          itemsListEl.appendChild(row);
-        });
-      }
-
-      initTomSelect();
-    }
-
-    /** add parent to local recipeInputs */
-    function addParentToRecipe(){
-      const sel = tomParent.getValue(); // returns value (doc.id) since maxItems=1
-      if(!sel || sel.length===0) { showMessage('Select a parent item first', 'error'); return; }
-      const selectedId = Array.isArray(sel) ? sel[0] : sel;
-      const opt = parentOptions.find(o => o.value === selectedId);
-      if(!opt) { showMessage('Selected parent not found', 'error'); return; }
-
-      const amount = parseFloat(parentAmountEl.value);
-      if(isNaN(amount) || amount <= 0){ showMessage('Enter a valid parent amount', 'error'); return; }
-
-      // prevent duplicate parent entries — if present, update amount
-      const existing = recipeInputs.find(r => r.itemDocId === selectedId);
-      if(existing){
-        existing.amount = amount;
-        renderRecipeRows();
-        return;
-      }
-
-      recipeInputs.push({
-        itemDocId: opt.value,
-        itemId: opt.itemId,
-        name: opt.name,
-        amount
-      });
-      renderRecipeRows();
-    }
-
-    /** remove parent by docId */
-    function removeRecipeParent(itemDocId){
-      recipeInputs = recipeInputs.filter(r => r.itemDocId !== itemDocId);
-      renderRecipeRows();
-    }
-
-    /** render recipe rows UI */
-    function renderRecipeRows(){
-      recipeRowsEl.innerHTML = '';
-      if(recipeInputs.length === 0){
-        recipeRowsEl.appendChild(noParentsEl);
-        return;
-      }
-      recipeInputs.forEach(r => {
-        const div = document.createElement('div');
-        div.className = 'table-row';
-        div.innerHTML = `
-          <div>
-            <div class="font-semibold">${r.itemId} — ${r.name}</div>
-            <div class="muted small">doc:${r.itemDocId}</div>
-          </div>
-          <div class="small">${r.amount}</div>
-          <div class="small">x</div>
-          <div><button class="text-red-400 remove-btn small">✖</button></div>
-        `;
-        div.querySelector('.remove-btn').addEventListener('click', () => removeRecipeParent(r.itemDocId));
-        recipeRowsEl.appendChild(div);
+      parentOptions.forEach(opt => {
+        const optionEl = document.createElement("option");
+        optionEl.value = opt.value;
+        optionEl.textContent = `${opt.itemId} - ${opt.name}`;
+        toolSelectEl.appendChild(optionEl);
       });
     }
 
-    /** save item to Firestore with transaction-safe incremental ID */
-    async function saveItemToFirestore(){
-      const name = (itemNameEl.value || '').trim();
-      const weight = parseFloat(itemWeightEl.value);
-      const quantity = parseInt(itemQuantityEl.value, 10);
-      const output = parseFloat(outputAmountEl.value) || 1;
-      const group = (itemGroupEl.value || '').trim();
+    function addRecipeInput() {
+      const wrapper = document.createElement("div");
+      wrapper.className = "flex gap-2 items-center";
 
-      if(!name) { showMessage('Item name required', 'error'); return; }
-      if(isNaN(weight) || isNaN(quantity)){ showMessage('Weight and quantity must be numeric', 'error'); return; }
-      if(recipeInputs.length === 0){ /* allow items without parents */ }
+      const select = document.createElement("select");
+      select.className = "flex-1 p-2 rounded bg-[#1b1d20] border border-[#2e3338]";
+      parentOptions.forEach(opt => {
+        const option = document.createElement("option");
+        option.value = opt.value;
+        option.textContent = `${opt.itemId} - ${opt.name}`;
+        select.appendChild(option);
+      });
 
-      // transaction to read and increment counter
-      const counterRef = doc(db, 'artifacts', appId, 'config', 'itemCounter');
+      const qty = document.createElement("input");
+      qty.type = "number";
+      qty.step = "0.01";
+      qty.min = "0.01";
+      qty.placeholder = "Qty";
+      qty.className = "w-20 p-2 rounded bg-[#1b1d20] border border-[#2e3338]";
 
-      try{
-        const result = await runTransaction(db, async (tx) => {
-          const counterSnap = await tx.get(counterRef);
-          let last = 0;
-          if(counterSnap.exists()){
-            last = counterSnap.data().lastId || 0;
-          }
-          const newNum = last + 1;
-          const newItemId = formatId(newNum);
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.textContent = "×";
+      removeBtn.className = "text-red-500 font-bold";
+      removeBtn.onclick = () => wrapper.remove();
 
-          // prepare item doc payload
-          const payload = {
-            itemId: newItemId,
-            name,
-            weight,
-            quantity,
-            group: group || null,
-            recipe: {
-              inputs: recipeInputs.map(r => ({ itemId: r.itemId, docId: r.itemDocId, amount: r.amount })),
-              output: { amount: output }
-            },
-            createdAt: serverTimestamp()
-          };
+      wrapper.appendChild(select);
+      wrapper.appendChild(qty);
+      wrapper.appendChild(removeBtn);
 
-          // add new item doc under artifacts/{appId}/items
-          const itemsColRef = collection(db, 'artifacts', appId, 'items');
-          const newDocRef = await addDoc(itemsColRef, payload);
-
-          // update counter
-          tx.set(counterRef, { lastId: newNum }, { merge: true });
-
-          return { newDocId: newDocRef.id, newItemId };
-        });
-
-        // success
-        itemNameEl.value = '';
-        itemWeightEl.value = '';
-        itemQuantityEl.value = '';
-        outputAmountEl.value = '1';
-        itemGroupEl.value = '';
-        recipeInputs = [];
-        renderRecipeRows();
-        await loadExistingItems();
-
-        showMessage(`Item created: ${result.newItemId}`, 'success');
-
-      } catch(err){
-        console.error('Failed to save item:', err);
-        showMessage('Failed to save item: ' + (err.message||err), 'error');
-      }
+      recipeList.appendChild(wrapper);
     }
 
-    // events
-    addParentBtn.addEventListener('click', addParentToRecipe);
-    saveItemBtn.addEventListener('click', (e) => {
+    addParentBtn.addEventListener("click", addRecipeInput);
+
+    async function getNextItemId() {
+      const q = query(collection(db, "artifacts/demandrusher_1.0.0/items"), orderBy("itemId", "desc"), limit(1));
+      const snap = await getDocs(q);
+      if (snap.empty) return "00001";
+      const lastId = snap.docs[0].data().itemId;
+      const nextId = String(parseInt(lastId) + 1).padStart(5, "0");
+      return nextId;
+    }
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      saveItemToFirestore();
+      statusEl.textContent = "Saving...";
+      try {
+        const name = document.getElementById("item-name").value;
+        const weight = parseFloat(document.getElementById("item-weight").value);
+        const quantity = parseInt(document.getElementById("item-quantity").value);
+        const group = document.getElementById("item-group").value;
+        const output = parseInt(document.getElementById("output-amount").value) || 1;
+        const craftTime = parseInt(document.getElementById("craft-time").value) || 0;
+        const toolDocId = toolSelectEl.value || null;
+        const toolData = toolDocId ? parentOptions.find(o => o.value === toolDocId) : null;
+
+        const recipeInputs = Array.from(recipeList.children).map(child => {
+          const sel = child.querySelector("select");
+          const qty = parseFloat(child.querySelector("input").value);
+          const selected = parentOptions.find(o => o.value === sel.value);
+          return { itemId: selected.itemId, docId: sel.value, amount: qty };
+        });
+
+        const newItemId = await getNextItemId();
+
+        await addDoc(collection(db, "artifacts/demandrusher_1.0.0/items"), {
+          itemId: newItemId,
+          name,
+          weight,
+          quantity,
+          group: group || null,
+          recipe: {
+            inputs: recipeInputs,
+            output: { amount: output },
+            time: craftTime,
+            tool: toolData ? { itemId: toolData.itemId, docId: toolData.value, name: toolData.name } : null
+          },
+          createdAt: serverTimestamp()
+        });
+
+        statusEl.textContent = `✅ Item "${name}" saved as ID ${newItemId}`;
+        form.reset();
+        recipeList.innerHTML = "";
+        loadExistingItems();
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "❌ Error saving item.";
+      }
     });
 
-    // init
-    (async function init(){
-      await loadExistingItems();
-      renderRecipeRows();
-    })();
-
+    loadExistingItems();
   </script>
 </body>
 </html>
