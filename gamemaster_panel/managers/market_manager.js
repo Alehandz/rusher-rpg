@@ -1,73 +1,97 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { firebaseConfig } from "../../shared/firebase_config.js";
+import { db } from "../../shared/firebase_config.js";
+import { 
+  collection, addDoc, getDocs, doc, getDoc, setDoc, updateDoc, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// DOM elements
+const itemForm = document.getElementById("item-form");
+const successMessage = document.getElementById("success-message");
+const errorMessage = document.getElementById("error-message");
+const parentSelect = document.getElementById("item-parents");
+const itemsContainer = document.getElementById("items-container");
 
-// DOM References
-const offerList = document.getElementById('offer-list');
-const createPremadeBtn = document.getElementById('create-premade-offer');
-const searchInput = document.getElementById('search-offers');
-
-// Global offers store
-let offersData = [];
-
-// --- Functions ---
-async function fetchOffers() {
-  const snapshot = await getDocs(collection(db, 'marketOffers'));
-  offersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  renderOffers();
+// Format ID as 00001, 00002, ...
+function formatId(num) {
+  return String(num).padStart(5, "0");
 }
 
-function renderOffers() {
-  const searchText = searchInput.value.toLowerCase();
-  const filtered = offersData.filter(o => o.itemName.toLowerCase().includes(searchText));
+// Load parent items into dropdown
+async function loadParentItems() {
+  const snap = await getDocs(collection(db, "market_items"));
+  parentSelect.innerHTML = "";
+  snap.forEach(doc => {
+    const option = document.createElement("option");
+    option.value = doc.id;
+    option.textContent = `${doc.data().itemId} - ${doc.data().name}`;
+    parentSelect.appendChild(option);
+  });
+}
 
-  offerList.innerHTML = '';
-  if (filtered.length === 0) {
-    offerList.innerHTML = '<p class="text-center text-gray-500">No offers found.</p>';
-    return;
+// Load existing items list
+async function loadItemsList() {
+  const snap = await getDocs(collection(db, "market_items"));
+  itemsContainer.innerHTML = "";
+  snap.forEach(doc => {
+    const data = doc.data();
+    const li = document.createElement("li");
+    li.textContent = `${data.itemId}: ${data.name} (Qty: ${data.quantity}, Weight: ${data.weight})`;
+    itemsContainer.appendChild(li);
+  });
+}
+
+// Handle form submit
+itemForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("item-name").value.trim();
+  const weight = parseFloat(document.getElementById("item-weight").value);
+  const quantity = parseInt(document.getElementById("item-quantity").value);
+
+  // Collect selected parents
+  const selectedParents = Array.from(parentSelect.selectedOptions).map(opt => opt.value);
+
+  try {
+    // Get counter doc
+    const counterRef = doc(db, "config", "itemCounter");
+    const counterSnap = await getDoc(counterRef);
+    let lastId = 0;
+    if (counterSnap.exists()) {
+      lastId = counterSnap.data().lastId || 0;
+    }
+
+    const newId = lastId + 1;
+    const formattedId = formatId(newId);
+
+    // Add new item
+    await addDoc(collection(db, "market_items"), {
+      itemId: formattedId,
+      name,
+      weight,
+      quantity,
+      parents: selectedParents,
+      createdAt: serverTimestamp()
+    });
+
+    // Update counter
+    await setDoc(counterRef, { lastId: newId });
+
+    // Success
+    successMessage.classList.remove("hidden");
+    errorMessage.classList.add("hidden");
+    itemForm.reset();
+
+    // Reload parents + list
+    await loadParentItems();
+    await loadItemsList();
+
+  } catch (err) {
+    console.error("Error adding item:", err);
+    errorMessage.textContent = "Failed to add item: " + err.message;
+    errorMessage.classList.remove("hidden");
+    successMessage.classList.add("hidden");
   }
+});
 
-  filtered.forEach(offer => {
-    const div = document.createElement('div');
-    div.className = 'offer-row bg-[#36393f] p-3 rounded-md flex justify-between items-center';
-    div.innerHTML = `
-      <span>${offer.itemName} — $${offer.price} x${offer.quantity}</span>
-      <button class="delete-btn bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600" data-id="${offer.id}">Delete</button>
-    `;
-    offerList.appendChild(div);
-  });
-
-  attachOfferListeners();
-}
-
-function attachOfferListeners() {
-  document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.onclick = async () => {
-      const id = btn.dataset.id;
-      await deleteDoc(doc(db, 'marketOffers', id));
-      fetchOffers();
-    };
-  });
-}
-
-async function createPremadeOffer() {
-  const newOffer = {
-    itemName: "Premade Item",
-    price: 1,
-    quantity: 999999, // practically unlimited for testing
-    createdAt: Date.now()
-  };
-  await addDoc(collection(db, 'marketOffers'), newOffer);
-  fetchOffers();
-}
-
-// --- Event Listeners ---
-createPremadeBtn.addEventListener('click', createPremadeOffer);
-searchInput.addEventListener('input', renderOffers);
-
-// --- Init ---
-fetchOffers();
+// Initialize page
+loadParentItems();
+loadItemsList();
