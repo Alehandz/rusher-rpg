@@ -2,55 +2,58 @@ import { auth, db } from "../shared/firebase_config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-const logoutBtn = document.getElementById("logout-btn");
-const nameSpan = document.getElementById("char-name");
-const levelSpan = document.getElementById("char-level");
-const moneySpan = document.getElementById("char-money");
-const locationSpan = document.getElementById("char-location");
-const healthBar = document.getElementById("char-health");
-const hungerBar = document.getElementById("char-hunger");
-const proficienciesDiv = document.getElementById("proficiencies");
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "../login.html";
-    return;
+// Wait for navbar to load before binding logout
+function setupLogout() {
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "../login.html";
+    });
   }
+}
 
-  const userDoc = await getDoc(doc(db, "players", user.uid));
+// Listen for auth changes
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    console.log("User logged in:", user.email);
+    setupLogout();
 
-  if (userDoc.exists()) {
-    const data = userDoc.data();
+    const userRef = doc(db, "players", user.uid);
+    const snap = await getDoc(userRef);
 
-    nameSpan.textContent = data.characterName || "Unknown";
-    levelSpan.textContent = data.level || 1;
-    moneySpan.textContent = data.money || 0;
-    locationSpan.textContent = data.location || "Unknown";
+    if (snap.exists()) {
+      const data = snap.data();
+      document.getElementById("character-name").textContent = data.characterName || "Unknown";
+      document.getElementById("character-level").textContent = data.level || 1;
+      document.getElementById("character-money").textContent = data.money || 0;
 
-    // Status
-    healthBar.style.width = (data.health || 100) + "%";
-    hungerBar.style.width = (data.hunger || 100) + "%";
+      // Example bars (replace with actual values later)
+      document.getElementById("health-bar").style.width = (data.health || 100) + "%";
+      document.getElementById("hunger-bar").style.width = (data.hunger || 100) + "%";
 
-    // Proficiencies
-    const profs = data.proficiencies || {};
-    proficienciesDiv.innerHTML = "";
-    for (const [skill, value] of Object.entries(profs)) {
-      proficienciesDiv.innerHTML += `
-        <div>
-          <p class="capitalize">${skill} (Lv. ${value.level || 1})</p>
-          <div class="w-full bg-gray-700 h-3 rounded">
-            <div class="bg-blue-500 h-3 rounded" style="width: ${value.xp || 0}%;"></div>
-          </div>
-        </div>
-      `;
+      document.getElementById("agriculture-level").textContent = data.agriculture?.level || 0;
+      document.getElementById("agriculture-bar").style.width = (data.agriculture?.xp || 0) + "%";
+
+      document.getElementById("livestock-level").textContent = data.livestock?.level || 0;
+      document.getElementById("livestock-bar").style.width = (data.livestock?.xp || 0) + "%";
+
+      document.getElementById("driver-level").textContent = data.driver?.level || 0;
+      document.getElementById("driver-bar").style.width = (data.driver?.xp || 0) + "%";
+
+      document.getElementById("cook-level").textContent = data.cook?.level || 0;
+      document.getElementById("cook-bar").style.width = (data.cook?.xp || 0) + "%";
+
+      document.getElementById("lawyer-level").textContent = data.lawyer?.level || 0;
+      document.getElementById("lawyer-bar").style.width = (data.lawyer?.xp || 0) + "%";
+
+      document.getElementById("construction-level").textContent = data.construction?.level || 0;
+      document.getElementById("construction-bar").style.width = (data.construction?.xp || 0) + "%";
+    } else {
+      console.warn("No character data found for this user.");
     }
   } else {
-    nameSpan.textContent = "Not Found";
+    console.log("No user logged in, redirecting...");
+    window.location.href = "../login.html";
   }
-});
-
-// Logout
-logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.href = "../login.html";
 });
