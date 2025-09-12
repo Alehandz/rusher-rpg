@@ -1,27 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demand Rusher - Market</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Inter', sans-serif; background-color: #2c2f33; color: #dcdcdc; }
+.container-panel { background-color: #40444b; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.offer-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr; align-items: center; padding: 8px; border-bottom: 1px solid #36393f; }
+.offer-row:last-child { border-bottom: none; }
+</style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Market - Demand Rusher</title>
-  <script type="module" src="../shared/firebase_config.js"></script>
+  <script type="module" src="./shared/firebase_config.js"></script>
+  <script type="module" src="./player/player.js"></script>
   <link href="https://cdn.tailwindcss.com" rel="stylesheet">
 </head>
+<body class="bg-[#2c2f33] min-h-screen flex flex-col items-center">
+
+<div class="w-full max-w-5xl p-8 space-y-8">
+
+<header class="flex justify-between items-center container-panel p-6">
+<h1 class="text-4xl font-bold text-[#7289da]">Demand Rusher - Market</h1>
+<button id="gamemaster-btn" class="bg-[#f04747] text-white font-bold py-2 px-4 rounded-full hover:bg-[#c93d3d] transition duration-200 hidden">
+GameMaster Mode
+</button>
+</header>
+
+<div class="container-panel p-4 space-y-4">
+<h2 class="text-xl font-bold">Marketplace</h2>
+
+<div class="flex flex-col md:flex-row md:space-x-4">
+<div class="flex-1">
+<h3 class="text-lg font-semibold mb-2">Sell Offers</h3>
+<div id="sell-offers-list" class="space-y-2 max-h-80 overflow-y-auto">
+<p class="text-center text-gray-500">No sell offers available.</p>
+</div>
+</div>
+<div class="flex-1 mt-4 md:mt-0">
+<h3 class="text-lg font-semibold mb-2">Buy Offers</h3>
+<div id="buy-offers-list" class="space-y-2 max-h-80 overflow-y-auto">
+<p class="text-center text-gray-500">No buy offers available.</p>
+</div>
+</div>
+</div>
+
+<div id="create-offer-section" class="container-panel p-4 mt-8">
+<h3 class="text-lg font-semibold mb-4">Create New Offer</h3>
+<form id="create-offer-form" class="space-y-4">
+<div>
+<label for="item-select" class="block text-sm font-medium mb-1">Item</label>
+<select id="item-select" class="w-full p-2 bg-[#2f3136] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]"></select>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div>
+<label for="quantity-input" class="block text-sm font-medium mb-1">Quantity</label>
+<input type="number" id="quantity-input" min="1" required class="w-full p-2 bg-[#2f3136] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]">
+</div>
+<div>
+<label for="price-input" class="block text-sm font-medium mb-1">Price per Unit</label>
+<input type="number" id="price-input" min="1" required class="w-full p-2 bg-[#2f3136] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]">
+</div>
+<div>
+<label for="offer-type-select" class="block text-sm font-medium mb-1">Offer Type</label>
+<select id="offer-type-select" class="w-full p-2 bg-[#2f3136] rounded-md focus:outline-none focus:ring-1 focus:ring-[#7289da]">
+<option value="sell">Sell</option>
+<option value="buy">Buy</option>
+</select>
+</div>
+</div>
+<button type="submit" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5] transition duration-200">Create Offer</button>
+</form>
+
+<button id="premade-offers-btn" class="mt-4 w-full bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition duration-200 hidden">
+Create Premade Test Offers ($1)
+</button>
+
+</div>
+
+</div>
+
+<div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center p-4">
+<div class="bg-[#36393f] rounded-lg shadow-xl p-6 w-full max-w-sm">
+<h3 id="modal-title" class="text-lg font-bold mb-2"></h3>
+<p id="modal-message" class="text-gray-400 mb-4"></p>
+<div class="flex justify-end space-x-2">
+<button id="modal-ok-btn" class="bg-[#7289da] text-white font-bold py-2 px-4 rounded-full hover:bg-[#6273c5] transition duration-200">OK</button>
+</div>
+</div>
+</div>
+
+<script type="module">
+// Firebase imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+    apiKey: "AIzaSyAReb65bsaoa145J5Yu2R61nrr4vvmqBiQ",
+    authDomain: "demand-rusher.firebaseapp.com",
+    projectId: "demand-rusher",
+    storageBucket: "demand-rusher.firebasestorage.app",
+    messagingSenderId: "491613307536",
+    appId: "1:491613307536:web:52f3339b4f12ef7418ce15",
+    measurementId: "G-VY4JSL70QV"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// DOM elements
+const sellOffersList = document.getElementById('sell-offers-list');
+const buyOffersList = document.getElementById('buy-offers-list');
+const itemSelect = document.getElementById('item-select');
+const quantityInput = document.getElementById('quantity-input');
+const priceInput = document.getElementById('price-input');
+const offerTypeSelect = document.getElementById('offer-type-select');
+const createOfferForm = document.getElementById('create-offer-form');
+const premadeBtn = document.getElementById('premade-offers-btn');
+const gamemasterBtn = document.getElementById('gamemaster-btn');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modal-title');
+const modalMessage = document.getElementById('modal-message');
+const modalOkBtn = document.getElementById('modal-ok-btn');
+
+let userId;
+let itemsMetadata = {};
+
+// --- Functions ---
+function showModal(title, message){
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    modal.classList.remove('hidden');
+}
+function hideModal(){ modal.classList.add('hidden'); }
+
+// Fetch items metadata and populate dropdown
+async function fetchItems(){
+    const itemsSnap = await getDocs(collection(db, 'artifacts/demandrusher_1.0.0/items'));
+    itemsSnap.forEach(doc => {
+        itemsMetadata[doc.id] = doc.data();
+        const option = document.createElement('option');
+        option.value = doc.id;
+        option.textContent = doc.data().name;
+        itemSelect.appendChild(option);
+    });
+}
+
+// Render market offers
+function renderOffers(snap){
+    sellOffersList.innerHTML = '';
+    buyOffersList.innerHTML = '';
+    if(snap.empty){
+        sellOffersList.innerHTML = '<p class="text-center text-gray-500">No sell offers available.</p>';
+        buyOffersList.innerHTML = '<p class="text-center text-gray-500">No buy offers available.</p>';
+        return;
+    }
+    snap.forEach(doc => {
+        const offer = doc.data();
+        const row = document.createElement('div');
+        row.className = 'offer-row hover:bg-[#4a4d53] rounded-md transition duration-200';
+        row.innerHTML = `
+            <span>${itemsMetadata[offer.itemId]?.name || 'Unknown'}</span>
+            <span>${offer.quantity}</span>
+            <span>$${offer.pricePerUnit}</span>
+            <span>$${offer.quantity * offer.pricePerUnit}</span>
+            <span>${offer.type === 'sell' ? offer.sellerId.slice(0,8) : offer.buyerId.slice(0,8)}</span>
+            <span>-</span>
+        `;
+        if(offer.type === 'sell') sellOffersList.appendChild(row);
+        else buyOffersList.appendChild(row);
+    });
+}
+
+// Create new offer
+createOfferForm.addEventListener('submit', async e=>{
+    e.preventDefault();
+    const itemId = itemSelect.value;
+    const quantity = parseInt(quantityInput.value);
+    const price = parseFloat(priceInput.value);
+    const type = offerTypeSelect.value;
+    if(!itemId || quantity<=0 || price<=0){ showModal('Invalid input','Check values'); return; }
+    await addDoc(collection(db,'artifacts/demandrusher_1.0.0/offers'),{
+        itemId: itemId,
+        quantity: quantity,
+        pricePerUnit: price,
+        type: type,
+        timestamp: Date.now(),
+        sellerId: type==='sell'?userId:null,
+        buyerId: type==='buy'?userId:null
+    });
+    showModal('Success','Offer created!');
+    createOfferForm.reset();
+});
+
+// Create premade offers for testing
+premadeBtn.addEventListener('click', async ()=>{
+    for(const itemId of Object.keys(itemsMetadata)){
+        await addDoc(collection(db,'artifacts/demandrusher_1.0.0/offers'),{
+            itemId: itemId,
+            quantity: 9999,
+            pricePerUnit: 1,
+            type: 'sell',
+            timestamp: Date.now(),
+            sellerId: 'premade'
+        });
+    }
+    showModal('Success','Premade offers created for testing!');
+});
+
+// Firestore listener for real-time updates
+onSnapshot(collection(db,'artifacts/demandrusher_1.0.0/offers'), snap=>{
+    renderOffers(snap);
+});
+
+// Modal event
+modalOkBtn.addEventListener('click', hideModal);
+
+// Auth state
+onAuthStateChanged(auth,user=>{
+    if(user){
+        userId = user.uid;
+        if(userId === 'AN2gz1aJecYOdoy6qiYiAST94JP2'){ // GameMaster
+            gamemasterBtn.classList.remove('hidden');
+            premadeBtn.classList.remove('hidden');
+        }
+        fetchItems();
+    }else{
+        window.location.href='login.html';
+    }
+});
+</script>
 <body class="bg-gray-900 text-white min-h-screen">
 
   <div id="navbar"></div>
 
   <main class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Market</h1>
-    <p>Marketplace for buying and selling items.</p>
+    <h1 class="text-2xl font-bold">Market</h1>
+    <p>Marketplace features will go here.</p>
   </main>
 
   <script>
-    fetch("../shared/navbar.html")
+    fetch("./shared/navbar.html")
       .then(res => res.text())
       .then(data => {
         document.getElementById("navbar").innerHTML = data;
-        import("../shared/auth_check.js");
       });
   </script>
 </body>
