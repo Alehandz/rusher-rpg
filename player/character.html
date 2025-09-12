@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Character - Demand Rusher</title>
   <script type="module" src="../shared/firebase_config.js"></script>
-  <script type="module" src="../player/player.js"></script>
   <link href="https://cdn.tailwindcss.com" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -13,8 +12,27 @@
   <div id="navbar"></div>
 
   <main class="p-6">
-    <h1 class="text-2xl font-bold">Character</h1>
-    <p>Character details and stats will go here.</p>
+    <h1 class="text-2xl font-bold mb-4">Character</h1>
+
+    <div class="mb-4">
+      <p>Name: <span id="character-name">Loading...</span></p>
+      <p>Level: <span id="character-level">1</span></p>
+      <p>Money: $<span id="character-money">0</span></p>
+      <p>Health: <span id="character-health">100%</span></p>
+      <p>Hunger: <span id="character-hunger">0%</span></p>
+      <p>Location: <span id="character-location">Unknown</span></p>
+    </div>
+
+    <h2 class="text-xl font-bold mb-2">Proficiencies</h2>
+    <ul class="space-y-2">
+      <li>Agriculture: <span id="prof-agriculture-level">0</span> (<span id="prof-agriculture-exp">0%</span>)</li>
+      <li>Livestock: <span id="prof-livestock-level">0</span> (<span id="prof-livestock-exp">0%</span>)</li>
+      <li>Driver: <span id="prof-driver-level">0</span> (<span id="prof-driver-exp">0%</span>)</li>
+      <li>Cook: <span id="prof-cook-level">0</span> (<span id="prof-cook-exp">0%</span>)</li>
+      <li>Lawyer: <span id="prof-lawyer-level">0</span> (<span id="prof-lawyer-exp">0%</span>)</li>
+      <li>Construction: <span id="prof-construction-level">0</span> (<span id="prof-construction-exp">0%</span>)</li>
+      <!-- Placeholder for future proficiencies -->
+    </ul>
   </main>
 
   <script>
@@ -22,6 +40,7 @@
       .then(res => res.text())
       .then(data => {
         document.getElementById("navbar").innerHTML = data;
+        import("../shared/auth_check.js");
       });
   </script>
 </body>
