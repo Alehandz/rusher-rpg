@@ -5,7 +5,7 @@ import { firebaseConfig } from "../../shared/firebase_config.js";
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
+ 
 // DOM References
 const itemNameInput = document.getElementById('item-name');
 const itemParentsInput = document.getElementById('item-parents');
