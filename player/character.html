@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character - Demand Rusher</title>
+  <script type="module" src="../shared/firebase_config.js"></script>
+  <script type="module" src="character.js"></script>
+  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+
+  <!-- Header -->
+  <header class="p-4 bg-gray-800 flex justify-between items-center">
+    <h1 class="text-xl font-bold">Character</h1>
+    <button id="logout-btn" class="bg-red-600 px-4 py-2 rounded">Logout</button>
+  </header>
+
+  <!-- Character Section -->
+  <main id="character-section" class="p-6 space-y-6">
+    <div class="bg-gray-800 p-4 rounded-lg">
+      <h2 class="text-lg font-bold mb-2">General</h2>
+      <p><strong>Name:</strong> <span id="char-name">Loading...</span></p>
+      <p><strong>Level:</strong> <span id="char-level">1</span></p>
+      <p><strong>Money:</strong> $<span id="char-money">0</span></p>
+      <p><strong>Location:</strong> <span id="char-location">Unknown</span></p>
+    </div>
+
+    <div class="bg-gray-800 p-4 rounded-lg">
+      <h2 class="text-lg font-bold mb-2">Status</h2>
+      <p>Health</p>
+      <div class="w-full bg-gray-700 h-4 rounded">
+        <div id="char-health" class="bg-green-500 h-4 rounded" style="width: 100%;"></div>
+      </div>
+      <p class="mt-2">Hunger</p>
+      <div class="w-full bg-gray-700 h-4 rounded">
+        <div id="char-hunger" class="bg-yellow-500 h-4 rounded" style="width: 100%;"></div>
+      </div>
+    </div>
+
+    <div class="bg-gray-800 p-4 rounded-lg">
+      <h2 class="text-lg font-bold mb-2">Proficiencies</h2>
+      <div id="proficiencies" class="space-y-3"></div>
+    </div>
+  </main>
+
+</body>
+</html>
