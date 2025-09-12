@@ -1,46 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Item Manager — Demand Rusher</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-body { font-family: 'Inter', sans-serif; background-color: #2c2f33; color: #dcdcdc; }
-.container-panel { background-color: #40444b; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 16px; }
-.item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #36393f; }
-.item-row:last-child { border-bottom: none; }
-input, select { background-color: #2f3136; color: #fff; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GM — Item Manager | Demand Rusher</title>
+
+  <!-- Tailwind (dev CDN ok for now) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tom Select for searchable multi-select -->
+  <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#16171a; color:#e6eef8; }
+    .panel { background:#222428; border-radius:8px; padding:18px; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+    .muted { color:#9aa4b2; }
+    .tag { background:#2f3740; padding:4px 8px; border-radius:999px; display:inline-block; margin-right:6px; }
+    .small { font-size:0.9rem; }
+    .table-row { display:grid; grid-template-columns: 1fr 80px 80px 40px; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+  </style>
 </head>
-<body class="bg-[#2c2f33] min-h-screen flex flex-col items-center p-4">
+<body class="min-h-screen p-6">
 
-<div class="w-full max-w-4xl space-y-6">
+  <div class="max-w-5xl mx-auto space-y-6">
+    <header class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-[#72a6ff]">GameMaster — Item Manager</h1>
+      <div class="muted small">App: <strong>Demand Rusher</strong></div>
+    </header>
 
-<h1 class="text-3xl font-bold text-[#7289da] mb-4">Item Manager</h1>
+    <section class="panel">
+      <h2 class="text-lg font-semibold mb-2">Create New Item</h2>
 
-<!-- Create New Item -->
-<div class="container-panel space-y-4">
-  <h2 class="text-xl font-bold">Create New Item</h2>
-  <input type="text" id="item-name" placeholder="Item Name" class="w-full p-2 rounded-md focus:outline-none">
-  <input type="text" id="item-parents" placeholder="Parents (comma separated, e.g. Wood 1x, Bone 1x)" class="w-full p-2 rounded-md focus:outline-none">
-  <input type="number" id="item-buildtime" placeholder="Time to build (seconds)" class="w-full p-2 rounded-md focus:outline-none">
-  <input type="text" id="item-group" placeholder="Group Name (Tools, Weapons, etc.)" class="w-full p-2 rounded-md focus:outline-none">
-  <button id="create-item" class="w-full bg-[#7289da] text-white font-bold py-2 px-4 rounded-md hover:bg-[#6273c5] transition">Create Item</button>
-</div>
+      <form id="item-form" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="small muted">Item Name</label>
+            <input id="item-name" required class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="e.g. Bread">
+          </div>
 
-<!-- Existing Items -->
-<div class="container-panel">
-  <h2 class="text-xl font-bold mb-4">Existing Items</h2>
-  <div id="item-list" class="space-y-2 max-h-80 overflow-y-auto">
-    <p class="text-center text-gray-500">No items yet.</p>
+          <div>
+            <label class="small muted">Weight (kg)</label>
+            <input id="item-weight" type="number" step="0.01" required class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="0.30">
+          </div>
+
+          <div>
+            <label class="small muted">Initial Quantity</label>
+            <input id="item-quantity" type="number" step="1" required class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="100">
+          </div>
+        </div>
+
+        <div>
+          <label class="small muted">Recipe — Parent Items (search & add)</label>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+            <div>
+              <select id="parent-select" placeholder="Search existing items..." class="w-full"></select>
+            </div>
+            <div>
+              <input id="parent-amount" type="number" step="0.01" min="0" value="1" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="Amount required">
+            </div>
+            <div>
+              <button id="add-parent-btn" type="button" class="w-full bg-indigo-600 hover:bg-indigo-500 p-2 rounded">Add to Recipe</button>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <div class="small muted">Current Recipe Inputs</div>
+            <div id="recipe-rows" class="mt-2 bg-[#101214] p-3 rounded max-h-40 overflow-y:auto">
+              <!-- recipe rows appended here -->
+              <div id="no-parents" class="muted small">No parents added yet.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="small muted">Output Amount (per craft)</label>
+            <input id="output-amount" type="number" step="1" min="1" value="1" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" >
+          </div>
+
+          <div>
+            <label class="small muted">Group / Category</label>
+            <input id="item-group" class="w-full p-2 rounded bg-[#1b1d20] border border-[#2e3338]" placeholder="e.g. Food > Baked">
+          </div>
+
+          <div>
+            <label class="small muted">&nbsp;</label>
+            <button id="save-item-btn" class="w-full bg-green-600 hover:bg-green-500 p-2 rounded">Save Item to DB</button>
+          </div>
+        </div>
+
+        <div id="form-messages" class="mt-2 small"></div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2 class="text-lg font-semibold mb-2">Existing Items</h2>
+      <div id="items-list" class="space-y-2 max-h-96 overflow-y-auto p-1">
+        <!-- items loaded here -->
+        <div id="items-empty" class="muted small">Loading items…</div>
+      </div>
+    </section>
   </div>
-</div>
 
-<script type="module" src="./item_manager.js"></script>
-</div>
+  <!-- Firebase + logic (module) -->
+  <script type="module">
+    // Adjust this appId if you use different application path
+    const appId = 'demandrusher_1.0.0';
+
+    // get shared db/auth from your shared config
+    import { db } from '../../shared/firebase_config.js';
+
+    // Firestore functions
+    import {
+      collection, doc, getDocs, getDoc, setDoc, addDoc, runTransaction, serverTimestamp
+    } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
+
+    // DOM
+    const parentSelectEl = document.getElementById('parent-select');
+    const parentAmountEl = document.getElementById('parent-amount');
+    const addParentBtn = document.getElementById('add-parent-btn');
+    const recipeRowsEl = document.getElementById('recipe-rows');
+    const noParentsEl = document.getElementById('no-parents');
+    const saveItemBtn = document.getElementById('save-item-btn');
+    const formMessages = document.getElementById('form-messages');
+
+    const itemNameEl = document.getElementById('item-name');
+    const itemWeightEl = document.getElementById('item-weight');
+    const itemQuantityEl = document.getElementById('item-quantity');
+    const outputAmountEl = document.getElementById('output-amount');
+    const itemGroupEl = document.getElementById('item-group');
+
+    const itemsListEl = document.getElementById('items-list');
+    const itemsEmptyEl = document.getElementById('items-empty');
+
+    let tomParent;                    // TomSelect instance
+    let parentOptions = [];           // [{value: doc.id, text: "00001 - Wheat", itemId: "00001", name:"Wheat"}]
+    let recipeInputs = [];            // [{ itemDocId, itemId, name, amount }]
+
+    /** format as 5-digit ID */
+    function formatId(n){ return String(n).padStart(5,'0'); }
+
+    /** show message */
+    function showMessage(text, kind='info'){
+      formMessages.innerHTML = `<div class="${kind==='error' ? 'text-red-400' : 'text-green-400'} small">${text}</div>`;
+      setTimeout(()=> { formMessages.innerHTML = ''; }, 5000);
+    }
+
+    /** initialize tom select */
+    function initTomSelect(){
+      // create or destroy existing instance
+      if(tomParent && tomParent.destroy) tomParent.destroy();
+
+      // create TomSelect on parent-select
+      tomParent = new TomSelect('#parent-select',{
+        options: parentOptions,
+        valueField: 'value',
+        labelField: 'text',
+        searchField: ['text','name','itemId'],
+        plugins: ['remove_button'],
+        maxItems: 1,
+        create: false,
+        placeholder: 'Search items by name or ID...'
+      });
+    }
+
+    /** load existing items to populate parent select and item list */
+    async function loadExistingItems(){
+      parentOptions = [];
+      itemsListEl.innerHTML = '';
+      itemsEmptyEl.textContent = 'Loading items...';
+
+      const itemsSnap = await getDocs(collection(db, 'artifacts', appId, 'items'));
+      const items = [];
+      itemsSnap.forEach(d => {
+        const data = d.data();
+        const option = {
+          value: d.id,
+          text: `${data.itemId || '----'} - ${data.name || '(no name)'}`
+        };
+        // keep extra metadata for recipe usage
+        option.name = data.name || '';
+        option.itemId = data.itemId || '';
+        parentOptions.push(option);
+
+        items.push({ docId: d.id, ...data });
+      });
+
+      // build items list
+      if(items.length === 0){
+        itemsEmptyEl.textContent = 'No items in database yet.';
+      } else {
+        itemsEmptyEl.remove();
+        items.forEach(it => {
+          const row = document.createElement('div');
+          row.className = 'p-2 bg-[#111218] rounded small flex justify-between items-center';
+          row.innerHTML = `
+            <div>
+              <div class="font-semibold">${it.itemId} — ${it.name}</div>
+              <div class="muted small">Qty: ${it.quantity ?? 0} · Weight: ${it.weight ?? '-'} · Created: ${it.createdAt?.toDate?.()?.toLocaleString?.() ?? '-'}</div>
+            </div>
+            <div class="text-sm muted">${(it.group || '')}</div>
+          `;
+          itemsListEl.appendChild(row);
+        });
+      }
+
+      initTomSelect();
+    }
+
+    /** add parent to local recipeInputs */
+    function addParentToRecipe(){
+      const sel = tomParent.getValue(); // returns value (doc.id) since maxItems=1
+      if(!sel || sel.length===0) { showMessage('Select a parent item first', 'error'); return; }
+      const selectedId = Array.isArray(sel) ? sel[0] : sel;
+      const opt = parentOptions.find(o => o.value === selectedId);
+      if(!opt) { showMessage('Selected parent not found', 'error'); return; }
+
+      const amount = parseFloat(parentAmountEl.value);
+      if(isNaN(amount) || amount <= 0){ showMessage('Enter a valid parent amount', 'error'); return; }
+
+      // prevent duplicate parent entries — if present, update amount
+      const existing = recipeInputs.find(r => r.itemDocId === selectedId);
+      if(existing){
+        existing.amount = amount;
+        renderRecipeRows();
+        return;
+      }
+
+      recipeInputs.push({
+        itemDocId: opt.value,
+        itemId: opt.itemId,
+        name: opt.name,
+        amount
+      });
+      renderRecipeRows();
+    }
+
+    /** remove parent by docId */
+    function removeRecipeParent(itemDocId){
+      recipeInputs = recipeInputs.filter(r => r.itemDocId !== itemDocId);
+      renderRecipeRows();
+    }
+
+    /** render recipe rows UI */
+    function renderRecipeRows(){
+      recipeRowsEl.innerHTML = '';
+      if(recipeInputs.length === 0){
+        recipeRowsEl.appendChild(noParentsEl);
+        return;
+      }
+      recipeInputs.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'table-row';
+        div.innerHTML = `
+          <div>
+            <div class="font-semibold">${r.itemId} — ${r.name}</div>
+            <div class="muted small">doc:${r.itemDocId}</div>
+          </div>
+          <div class="small">${r.amount}</div>
+          <div class="small">x</div>
+          <div><button class="text-red-400 remove-btn small">✖</button></div>
+        `;
+        div.querySelector('.remove-btn').addEventListener('click', () => removeRecipeParent(r.itemDocId));
+        recipeRowsEl.appendChild(div);
+      });
+    }
+
+    /** save item to Firestore with transaction-safe incremental ID */
+    async function saveItemToFirestore(){
+      const name = (itemNameEl.value || '').trim();
+      const weight = parseFloat(itemWeightEl.value);
+      const quantity = parseInt(itemQuantityEl.value, 10);
+      const output = parseFloat(outputAmountEl.value) || 1;
+      const group = (itemGroupEl.value || '').trim();
+
+      if(!name) { showMessage('Item name required', 'error'); return; }
+      if(isNaN(weight) || isNaN(quantity)){ showMessage('Weight and quantity must be numeric', 'error'); return; }
+      if(recipeInputs.length === 0){ /* allow items without parents */ }
+
+      // transaction to read and increment counter
+      const counterRef = doc(db, 'artifacts', appId, 'config', 'itemCounter');
+
+      try{
+        const result = await runTransaction(db, async (tx) => {
+          const counterSnap = await tx.get(counterRef);
+          let last = 0;
+          if(counterSnap.exists()){
+            last = counterSnap.data().lastId || 0;
+          }
+          const newNum = last + 1;
+          const newItemId = formatId(newNum);
+
+          // prepare item doc payload
+          const payload = {
+            itemId: newItemId,
+            name,
+            weight,
+            quantity,
+            group: group || null,
+            recipe: {
+              inputs: recipeInputs.map(r => ({ itemId: r.itemId, docId: r.itemDocId, amount: r.amount })),
+              output: { amount: output }
+            },
+            createdAt: serverTimestamp()
+          };
+
+          // add new item doc under artifacts/{appId}/items
+          const itemsColRef = collection(db, 'artifacts', appId, 'items');
+          const newDocRef = await addDoc(itemsColRef, payload);
+
+          // update counter
+          tx.set(counterRef, { lastId: newNum }, { merge: true });
+
+          return { newDocId: newDocRef.id, newItemId };
+        });
+
+        // success
+        itemNameEl.value = '';
+        itemWeightEl.value = '';
+        itemQuantityEl.value = '';
+        outputAmountEl.value = '1';
+        itemGroupEl.value = '';
+        recipeInputs = [];
+        renderRecipeRows();
+        await loadExistingItems();
+
+        showMessage(`Item created: ${result.newItemId}`, 'success');
+
+      } catch(err){
+        console.error('Failed to save item:', err);
+        showMessage('Failed to save item: ' + (err.message||err), 'error');
+      }
+    }
+
+    // events
+    addParentBtn.addEventListener('click', addParentToRecipe);
+    saveItemBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      saveItemToFirestore();
+    });
+
+    // init
+    (async function init(){
+      await loadExistingItems();
+      renderRecipeRows();
+    })();
+
+  </script>
 </body>
 </html>
