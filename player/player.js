@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const healthBar = document.getElementById('health-bar');
   const hungerBar = document.getElementById('hunger-bar');
   const logoutBtn = document.getElementById('logout-btn');
+  const mainContent = document.getElementById('main-content');
 
   // Check if user is logged in
   onAuthStateChanged(auth, async (user) => {
@@ -49,6 +50,33 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
       console.error("Error logging out:", error);
     }
+  });
+
+  // Section navigation
+  const sectionContent = {
+    character: `
+      <h2 class="text-xl font-bold mb-4">Character</h2>
+      <p>This is where character details and upgrades will appear.</p>
+    `,
+    market: `
+      <h2 class="text-xl font-bold mb-4">Market</h2>
+      <p>Here you will be able to buy and sell items.</p>
+    `,
+    job: `
+      <h2 class="text-xl font-bold mb-4">Job Offers</h2>
+      <p>Find work opportunities to earn money and experience.</p>
+    `,
+    inventory: `
+      <h2 class="text-xl font-bold mb-4">Inventory</h2>
+      <p>Check the items you currently own here.</p>
+    `
+  };
+
+  document.querySelectorAll("button[data-section]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const section = btn.getAttribute("data-section");
+      mainContent.innerHTML = sectionContent[section] || "<p>Section not found.</p>";
+    });
   });
 
 });
