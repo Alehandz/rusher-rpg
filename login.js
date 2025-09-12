@@ -1,24 +1,21 @@
-import { auth } from '../shared/firebase_config.js';
-import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { firebaseConfig } from "./shared/firebase_config.js"; // correct relative path
 
-const form = document.getElementById('login-form');
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const loginForm = document.getElementById('login-form');
 const errorMessage = document.getElementById('error-message');
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    console.log("Usuário logado:", user.email);
-
-    // Redireciona para a página principal do jogo
-    window.location.href = "player/dashboard.html"; 
-  } catch (error) {
-    console.error("Erro ao logar:", error); 
-    errorMessage.textContent = error.message;
-  }
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "./player/dashboard.html"; // redirect after login
+    } catch (error) {
+        errorMessage.textContent = error.message;
+    }
 });
